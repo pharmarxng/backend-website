@@ -1,17 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsString,
-  MinLength,
-  IsOptional,
-  Matches,
-} from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, Matches } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
+import { AdminRole } from 'src/common';
 import * as bcrypt from 'bcryptjs';
 
-export type UserDocument = HydratedDocument<User>;
+export type AdminDocument = HydratedDocument<Admin>;
 
 @Schema({
   versionKey: false,
@@ -24,14 +19,14 @@ export type UserDocument = HydratedDocument<User>;
     },
   },
 })
-export class User {
+export class Admin {
   @Prop({ type: String, required: true, lowercase: true })
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
     type: String,
     example: 'John',
-    description: 'first name of user',
+    description: 'first name of admin',
   })
   firstName: string;
 
@@ -41,29 +36,9 @@ export class User {
   @ApiProperty({
     type: String,
     example: 'Micheal',
-    description: 'Last name of user',
+    description: 'Last name of admin',
   })
   lastName: string;
-
-  @Prop({ type: String, unique: true })
-  @IsOptional()
-  @IsString()
-  @ApiProperty({
-    type: String,
-    example: 'Micchy',
-    description: 'Username of user',
-  })
-  userName?: string;
-
-  @Prop({ type: String })
-  @IsOptional()
-  @IsString()
-  @ApiProperty({
-    type: String,
-    example: '15, Ajegunle Road, Ogbomosho, Lagos',
-    description: 'address of user',
-  })
-  address?: string;
 
   // @Prop({ type: String, unique: true })
   // @IsNotEmpty()
@@ -87,20 +62,28 @@ export class User {
   @ApiProperty({
     type: String,
     minLength: 5,
-    description: 'User password',
+    description: 'Admin password',
   })
   password: string;
+
+  @Prop({
+    type: [String],
+    default: AdminRole.MASTER_ADMIN,
+    required: true,
+    enum: AdminRole,
+  })
+  roles: AdminRole[];
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
-UserSchema.plugin(mongoosePaginate);
-UserSchema.pre<UserDocument>('save', async function (next) {
-  const user = this as UserDocument;
-  if (!user.isModified('password')) return next();
+export const AdminSchema = SchemaFactory.createForClass(Admin);
+AdminSchema.plugin(mongoosePaginate);
+AdminSchema.pre('save', async function (next) {
+  const admin = this as AdminDocument;
+  if (!admin.isModified('password')) return next();
   const salt = await bcrypt.genSalt(
     10,
     // Number(config.get<string>('BCRYPT_HASH_SALT_ROUNDS')),
   );
-  user.password = await bcrypt.hash(user.password, salt);
+  admin.password = await bcrypt.hash(admin.password, salt);
   next();
 });

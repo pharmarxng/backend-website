@@ -8,9 +8,9 @@ export class UserService {
 
   constructor(private readonly userRepo: UserRepository) {}
 
-  async findUserbyEmail(email: string) {
+  async findUserbyPhone(phone: string) {
     return this.userRepo.findOne({
-      email: { $ne: null, $eq: email },
+      phone: { $ne: null, $eq: phone },
     });
   }
 

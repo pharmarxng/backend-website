@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/user.module';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TokenService } from './token.service';
 
@@ -14,7 +14,7 @@ import { TokenService } from './token.service';
       }),
       inject: [ConfigService],
     }),
-    ConfigService,
+    ConfigModule,
     UserModule,
   ],
   providers: [AuthService, TokenService],

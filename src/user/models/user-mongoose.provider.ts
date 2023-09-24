@@ -1,9 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import { UserSchema, UserDocument } from './user.model';
+import { Collections } from 'src/collections';
 
 export const UserMongooseProvider = {
-  name: 'users',
+  name: Collections.users,
   inject: [ConfigService],
   useFactory: (config: ConfigService) => {
     const userSchema = UserSchema;

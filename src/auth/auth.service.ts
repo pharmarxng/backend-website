@@ -32,7 +32,7 @@ export class AuthService {
    */
   async signUp(body: UserSignUpDto): Promise<IResponse<any>> {
     this.logger.debug('Executing Signup Method');
-    const { email, confirmPassword, password } = body;
+    const { phone, confirmPassword, password } = body;
     console.log({ body });
 
     if (confirmPassword !== password)
@@ -42,7 +42,7 @@ export class AuthService {
 
     console.log('It got here');
     //Check if user already exists in the database
-    const foundUser = await this.userService.findUserbyEmail(email);
+    const foundUser = await this.userService.findUserbyPhone(phone);
 
     console.log({ foundUser });
     if (foundUser)
@@ -67,10 +67,10 @@ export class AuthService {
    * @returns A promise of a promise of a RequestResponse<LoginResponse>
    */
   async login(body: LoginDto) {
-    const { email, password } = body;
-    const userInDb = await this.userService.findUserbyEmail(email);
+    const { phone, password } = body;
+    const userInDb = await this.userService.findUserbyPhone(phone);
     if (!userInDb)
-      throw new NotFoundException(`User with email: ${email} not found`);
+      throw new NotFoundException(`User with phone number: ${phone} not found`);
 
     if (!bcrypt.compare(password, userInDb.password))
       throw new BadRequestException(`Invalid password`);
