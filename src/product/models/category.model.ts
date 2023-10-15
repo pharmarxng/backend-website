@@ -1,11 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
-import { Collections } from 'src/collections';
 
-export type ProductDocument = HydratedDocument<Product>;
+export type CategoryDocument = HydratedDocument<Category>;
 
 @Schema({
   versionKey: false,
@@ -18,7 +17,7 @@ export type ProductDocument = HydratedDocument<Product>;
     },
   },
 })
-export class Product {
+export class Category {
   @Prop({ type: String, required: true, lowercase: true })
   @IsNotEmpty()
   @IsString()
@@ -42,30 +41,7 @@ export class Product {
     type: String,
   })
   description: string;
-
-  @Prop({ type: Number, required: true })
-  @IsNotEmpty()
-  @IsNumber()
-  @ApiProperty({
-    type: Number,
-  })
-  rating: number;
-
-  @Prop({ type: Number, required: true })
-  @IsNotEmpty()
-  @IsNumber()
-  @ApiProperty({
-    type: Number,
-  })
-  price: number;
-
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Collections.categories,
-    required: true,
-  })
-  category: string;
 }
 
-export const ProductSchema = SchemaFactory.createForClass(Product);
-ProductSchema.plugin(mongoosePaginate);
+export const CategorySchema = SchemaFactory.createForClass(Category);
+CategorySchema.plugin(mongoosePaginate);

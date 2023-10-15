@@ -183,7 +183,6 @@ export abstract class AbstractRepository<T extends Document> {
     if (page) {
       options['page'] = Number(page);
     }
-    console.log(condition, options);
     return (this.model as PaginateModel<T>).paginate(condition, options);
   }
 
