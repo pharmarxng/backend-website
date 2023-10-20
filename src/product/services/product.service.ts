@@ -7,7 +7,6 @@ import {
 import { FindManyDto } from 'src/common';
 import { ProductRepository } from '../repository/product.repository';
 import { AddProductDto } from '../dtos/add-product.dto';
-import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class ProductService {
