@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsOptional } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { Collections } from 'src/collections';
+import { Reviews } from './reviews.model';
 
 export type ProductDocument = HydratedDocument<Product>;
 
@@ -64,7 +65,20 @@ export class Product {
     ref: Collections.categories,
     required: true,
   })
+  @IsNotEmpty()
+  @ApiProperty({
+    type: mongoose.Schema.Types.ObjectId,
+  })
   category: string;
+
+  @Prop([
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Collections.reviews,
+    },
+  ])
+  @ApiProperty({ type: [String] })
+  reviews: string[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

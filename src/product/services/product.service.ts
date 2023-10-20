@@ -7,6 +7,7 @@ import {
 import { FindManyDto } from 'src/common';
 import { ProductRepository } from '../repository/product.repository';
 import { AddProductDto } from '../dtos/add-product.dto';
+import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class ProductService {
@@ -15,8 +16,18 @@ export class ProductService {
   constructor(private readonly productsRepo: ProductRepository) {}
 
   async getAllProducts(query: FindManyDto) {
+    const { search } = query;
+    const condition = {};
+
+    if (search) {
+      condition['$or'] = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
     const foundProducts = await this.productsRepo.findManyWithPagination(
-      {},
+      condition,
       query,
     );
 
@@ -45,6 +56,7 @@ export class ProductService {
       sort: { rating: -1 },
       limit: 8,
     });
+
     return {
       statusCode: HttpStatus.OK,
       message: 'Successfully retrieved products',

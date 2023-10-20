@@ -3,4 +3,5 @@ export enum Collections {
   products = 'products',
   admins = 'admins',
   categories = 'categories',
+  reviews = 'reviews',
 }

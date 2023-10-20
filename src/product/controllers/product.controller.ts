@@ -19,7 +19,7 @@ export class ProductController {
   }
 
   @Get('get-by-category/:categoryId')
-  @ApiOperation({ summary: `Lists all products` })
+  @ApiOperation({ summary: `Get products by category` })
   async getProductsByCategory(
     @Query() query: FindManyDto,
     @Param('categoryId') categoryId: string,
@@ -28,7 +28,7 @@ export class ProductController {
   }
 
   @Get('get-trending-products')
-  @ApiOperation({ summary: `Lists all products` })
+  @ApiOperation({ summary: `Get a list of trending products` })
   async getTrendingProducts() {
     return this.productService.getTrendingProducts();
   }
