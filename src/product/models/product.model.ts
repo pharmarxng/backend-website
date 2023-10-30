@@ -78,6 +78,12 @@ export class Product {
   ])
   @ApiProperty({ type: [String] })
   reviews: string[];
+
+  @Prop({ type: Number, required: true, default: 5 })
+  noOfUnitsAvailable: number;
+
+  @Prop({ type: Boolean, required: true, default: true })
+  inStock: boolean;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

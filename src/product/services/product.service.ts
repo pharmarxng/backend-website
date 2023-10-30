@@ -7,6 +7,7 @@ import {
 import { FindManyDto } from 'src/common';
 import { ProductRepository } from '../repository/product.repository';
 import { AddProductDto } from '../dtos/add-product.dto';
+import { GetAllProductQueryDto } from '../dtos/get-products.dto';
 
 @Injectable()
 export class ProductService {
@@ -14,8 +15,8 @@ export class ProductService {
 
   constructor(private readonly productsRepo: ProductRepository) {}
 
-  async getAllProducts(query: FindManyDto) {
-    const { search } = query;
+  async getAllProducts(query: GetAllProductQueryDto) {
+    const { search, categoryId } = query;
     const condition = {};
 
     if (search) {
@@ -23,6 +24,10 @@ export class ProductService {
         { name: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
       ];
+    }
+
+    if (categoryId) {
+      condition['$or'] = [{ category: categoryId }];
     }
 
     const foundProducts = await this.productsRepo.findManyWithPagination(

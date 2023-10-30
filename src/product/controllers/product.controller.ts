@@ -2,6 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ProductService } from '../services/product.service';
 import { FindManyDto } from 'src/common';
+import { GetAllProductQueryDto } from '../dtos/get-products.dto';
 
 @ApiTags('Products')
 @ApiBearerAuth()
@@ -14,7 +15,7 @@ export class ProductController {
 
   @Get('get-all')
   @ApiOperation({ summary: `Lists all products` })
-  async getAllProducts(@Query() query: FindManyDto) {
+  async getAllProducts(@Query() query: GetAllProductQueryDto) {
     return this.productService.getAllProducts(query);
   }
 
