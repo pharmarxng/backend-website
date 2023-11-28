@@ -4,4 +4,8 @@ export enum Collections {
   admins = 'admins',
   categories = 'categories',
   reviews = 'reviews',
+  orders = 'orders',
+  orderedProducts = 'orderedProducts',
+  orderDeliveryFees = 'orderDeliveryFees',
+  orderDiscountVoucher = 'orderDiscountVoucher',
 }

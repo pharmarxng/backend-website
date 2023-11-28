@@ -6,6 +6,7 @@ import {
   MinLength,
   IsOptional,
   Matches,
+  IsEmail,
 } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
@@ -65,15 +66,15 @@ export class User {
   })
   address?: string;
 
-  // @Prop({ type: String, unique: true })
-  // @IsNotEmpty()
-  // @IsEmail()
-  // @IsString()
-  // @ApiProperty({ type: String, example: 'test@yahoo.com' })
-  // email: string;
+  @Prop({ type: String, unique: true })
+  @IsOptional()
+  @IsEmail()
+  @IsString()
+  @ApiProperty({ type: String, example: 'test@yahoo.com' })
+  email: string;
 
   @Prop({ unique: true })
-  @IsNotEmpty()
+  @IsOptional()
   @Matches(/^\+[1-9]\d{1,14}$/, {
     message: 'Phone number must be valid with + sign',
   })

@@ -4,6 +4,8 @@ import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { Collections } from 'src/collections';
+import { Category } from './category.model';
+import { Reviews } from './reviews.model';
 
 export type ProductDocument = HydratedDocument<Product>;
 
@@ -68,7 +70,7 @@ export class Product {
   @ApiProperty({
     type: mongoose.Schema.Types.ObjectId,
   })
-  category: string;
+  category: Category;
 
   @Prop([
     {
@@ -77,7 +79,7 @@ export class Product {
     },
   ])
   @ApiProperty({ type: [String] })
-  reviews: string[];
+  reviews: Reviews[];
 
   @Prop({ type: Number, required: true, default: 5 })
   noOfUnitsAvailable: number;

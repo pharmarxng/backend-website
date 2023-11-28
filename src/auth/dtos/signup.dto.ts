@@ -1,4 +1,5 @@
 import {
+  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -22,8 +23,13 @@ export class UserSignUpDto {
   @MinLength(2)
   lastName: string;
 
+  @IsOptional()
+  @IsEmail()
+  @IsString()
+  email: string;
+
   @IsPhoneNumber()
-  @IsNotEmpty()
+  @IsOptional()
   phone: string;
 
   @IsString()

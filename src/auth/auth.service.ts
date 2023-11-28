@@ -32,17 +32,22 @@ export class AuthService {
    */
   async signUp(body: UserSignUpDto): Promise<IResponse<any>> {
     this.logger.debug('Executing Signup Method');
-    const { phone, confirmPassword, password } = body;
-    console.log({ body });
+    const { phone, email, confirmPassword, password } = body;
 
     if (confirmPassword !== password)
       throw new ForbiddenException(
         'Password and confirmPassword fields must match',
       );
 
-    console.log('It got here');
+    if (!phone && !email) {
+      throw new BadRequestException('Please enter valid phone or email');
+    }
+
     //Check if user already exists in the database
-    const foundUser = await this.userService.findUserbyPhone(phone);
+    const foundUser = await this.userService.findUserbyPhoneOrEmail(
+      phone,
+      email,
+    );
 
     console.log({ foundUser });
     if (foundUser)
@@ -50,7 +55,6 @@ export class AuthService {
         `User already exists. Please login to continue`,
       );
 
-    console.log('It got here 2');
     await this.userService.createUser({ ...body });
 
     return {
@@ -67,20 +71,29 @@ export class AuthService {
    * @returns A promise of a promise of a RequestResponse<LoginResponse>
    */
   async login(body: LoginDto) {
-    const { phone, password } = body;
-    const userInDb = await this.userService.findUserbyPhone(phone);
-    if (!userInDb)
-      throw new NotFoundException(`User with phone number: ${phone} not found`);
+    const { phone, email, password } = body;
+    if (!phone && !email) {
+      throw new BadRequestException('Please enter valid phone or email');
+    }
 
-    if (!bcrypt.compare(password, userInDb.password))
+    const userInDb = await this.userService.findUserbyPhoneOrEmail(
+      phone,
+      email,
+    );
+    if (!userInDb) throw new NotFoundException(`User not found`);
+
+    const passwordsMatch = await bcrypt.compare(password, userInDb.password);
+
+    if (!passwordsMatch) {
       throw new BadRequestException(`Invalid password`);
+    }
 
     const { accessToken, refreshToken } =
       await this.tokenService.handleCreateTokens(userInDb.id);
 
     return {
       statusCode: HttpStatus.CREATED,
-      message: 'Sign up successful',
+      message: 'Login successful',
       data: {
         user: userInDb,
         accessToken,

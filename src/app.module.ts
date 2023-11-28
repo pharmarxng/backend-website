@@ -16,6 +16,7 @@ import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
 import { AdminSeeder } from './admin/seeder/admin.seeder';
 import { PaymentModule } from './payment/payment.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PaymentModule } from './payment/payment.module';
     UserModule,
     AdminModule,
     PaymentModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],
