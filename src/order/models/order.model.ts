@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
-import { DeliveryType, OrderStatus } from 'src/common';
+import { DeliveryType, OrderStatus, PAYMENT_TYPE } from 'src/common';
 import { OrderedProducts } from './ordered-products.model';
 import { Collections } from 'src/collections';
 import { Transform } from 'class-transformer';
@@ -156,6 +156,29 @@ export class Order {
   })
   @IsNotEmpty()
   isPaid: boolean;
+
+  @Prop({ type: String })
+  @IsOptional()
+  @IsEnum(OrderStatus)
+  paymentType?: PAYMENT_TYPE;
+
+  @Prop({ type: String })
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    type: String,
+    description: 'authorization url from payment channel',
+  })
+  authorization_url?: string;
+
+  @Prop({ type: String })
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    type: String,
+    description: 'payment reference from payment channel',
+  })
+  payment_reference?: string;
 
   @Prop({ type: String, default: OrderStatus.ONGOING })
   @IsEnum(OrderStatus)

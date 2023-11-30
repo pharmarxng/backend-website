@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   HttpStatus,
   Injectable,
   InternalServerErrorException,
@@ -9,9 +10,15 @@ import {
 import {
   CreateDeliveryFeeDto,
   CreateOrderDto,
+  FetchAllOrdersDto,
+  PayForOrderDto,
   UpdateDeliveryFeeDto,
 } from './dtos';
-import { DeliveryType } from 'src/common';
+import {
+  DeliveryType,
+  IInitializeTransactionRes,
+  PaymentRequestPayload,
+} from 'src/common';
 import { OrderDiscountVoucherDocument, OrderedProducts } from './models';
 import {
   OrderRepository,
@@ -20,6 +27,8 @@ import {
   OrderDiscountVoucherRepository,
 } from './repository';
 import { ProductRepository } from 'src/product';
+import { PaystackPayService } from 'src/payment';
+import { catchError, lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class OrderService {
@@ -30,10 +39,12 @@ export class OrderService {
     private readonly orderDeliveryFeesRepo: OrderDeliveryFeesRepository,
     private readonly productRepo: ProductRepository,
     private readonly orderDiscountVoucherRepo: OrderDiscountVoucherRepository,
+    private readonly paystack: PaystackPayService,
   ) {}
 
   async getDeliveryFees() {
     const foundDeliveryFeesInDd = await this.orderDeliveryFeesRepo.find();
+
     return {
       statusCode: HttpStatus.OK,
       message: 'Successfully fetched delivery fees',
@@ -57,7 +68,7 @@ export class OrderService {
         `Could not find discount voucher for discountCode: ${discountCode}`,
       );
     return {
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
       message: 'Successfully retrieved discount voucher',
       data: foundDiscountVoucherInDb,
     };
@@ -96,6 +107,7 @@ export class OrderService {
 
   async createOrder(body: CreateOrderDto) {
     const { deliveryType } = body;
+
     if (deliveryType === DeliveryType.pickup) {
       return this.createPickupOrder(body);
     }
@@ -109,8 +121,87 @@ export class OrderService {
       message: 'Cannot process order creation request',
     };
   }
+  async fetchAllOrders(query: FetchAllOrdersDto) {
+    const { email } = query;
+    const condition = {};
+    if (email) {
+      condition['email'] = email;
+    }
+    const foundOrdersInDb = await this.orderRepo.findManyWithPagination(
+      condition,
+      query,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully fetched orders',
+      data: foundOrdersInDb,
+    };
+  }
 
-  async generateOrderId() {
+  async fetchOrderById(id: string) {
+    const foundOrderInDb = await this.orderRepo.findOne({ _id: id });
+    if (!foundOrderInDb) throw new NotFoundException(`Order ${id} not found`);
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully fetched order',
+      data: foundOrderInDb,
+    };
+  }
+
+  async payForOrder(body: PayForOrderDto) {
+    const { orderId, callback_url } = body;
+    const foundOrderInDb = await this.orderRepo.findOne(
+      { orderId },
+      {},
+      {
+        populate: ['products'],
+      },
+    );
+    if (!foundOrderInDb) throw new NotFoundException('Order not found');
+    if (foundOrderInDb.isPaid)
+      throw new ConflictException('Order has been paid for already');
+    // Todo: modify for order voucher
+    const reqPayload: PaymentRequestPayload = {
+      email: foundOrderInDb.email,
+      amount: foundOrderInDb.total * 100, // convert to kobo
+      channels: ['card', 'ussd', 'qr', 'bank_transfer'],
+      metadata: {
+        full_name: foundOrderInDb.firstName,
+        paymentType: 'ORDER_PAYMENT',
+        orderId: foundOrderInDb.orderId,
+      },
+    };
+    if (callback_url) {
+      reqPayload['callback_url'] = callback_url;
+    }
+    const res = await lastValueFrom(
+      this.paystack.initializeTransaction(reqPayload).pipe(
+        map(async (res: IInitializeTransactionRes) => {
+          return res.data;
+        }),
+        catchError((err) => {
+          this.logger.error('[initiate card payment error]', err);
+          throw new InternalServerErrorException(
+            `
+          Sorry, we could not initiate your payment. Try Again or contact customer support
+          `,
+          );
+        }),
+      ),
+    );
+
+    foundOrderInDb.authorization_url = res.authorization_url;
+    foundOrderInDb.payment_reference = res.reference;
+
+    const updtaedOrderInDb = await foundOrderInDb.save();
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully intiated order payment',
+      data: updtaedOrderInDb,
+    };
+  }
+
+  private async generateOrderId() {
     const prefix = 'PH';
     const { orderId } = await this.orderRepo.findOne({}, undefined, {
       sort: { createdAt: -1 },
@@ -155,15 +246,24 @@ export class OrderService {
     });
 
     return {
-      statusCode: HttpStatus.OK,
+      statusCode: HttpStatus.CREATED,
       message: 'Successfully created order',
       data: createdOrder,
     };
   }
 
   private async createPickupOrder(body: CreateOrderDto) {
-    const { products, discountCode, postalCode, deliveryType, deliveryFee } =
-      body;
+    const {
+      products,
+      discountCode,
+      postalCode,
+      deliveryType,
+      deliveryFee,
+      email,
+    } = body;
+    if (!email) {
+      throw new BadRequestException(`Please provide valid email address`);
+    }
     const { data } = await this.getDiscountVoucher(discountCode);
     const { subTotal } = await this.calculateOrderSubTotal(products);
     const total = await this.calculateTotalOrderPrice(subTotal, null, data);
@@ -178,11 +278,12 @@ export class OrderService {
       total,
       deliveryType,
       orderId,
+      email,
       products: savedOrderedProduct,
     });
 
     return {
-      statusCode: HttpStatus.OK,
+      statusCode: HttpStatus.CREATED,
       message: 'Successfully created order',
       data: createdOrder,
     };

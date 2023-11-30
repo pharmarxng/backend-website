@@ -49,7 +49,6 @@ export class AuthService {
       email,
     );
 
-    console.log({ foundUser });
     if (foundUser)
       throw new ForbiddenException(
         `User already exists. Please login to continue`,

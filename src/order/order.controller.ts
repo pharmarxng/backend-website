@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from './dtos';
+import { CreateOrderDto, FetchAllOrdersDto, PayForOrderDto } from './dtos';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -30,5 +30,26 @@ export class OrderController {
   @ApiOperation({ summary: `Create a new order` })
   async createOrder(@Body() body: CreateOrderDto) {
     return this.orderService.createOrder(body);
+  }
+
+  @Get('fetch-all-orders')
+  @ApiOperation({
+    summary: `Fetch all orders`,
+    description: `Can be filtered by passing in an email`,
+  })
+  async fetchAllOrders(@Query() query: FetchAllOrdersDto) {
+    return this.orderService.fetchAllOrders(query);
+  }
+
+  @Get('fetch-order/:id')
+  @ApiOperation({ summary: `Fetch an order by id` })
+  async fetchOrderById(@Param('id') id: string) {
+    return this.orderService.fetchOrderById(id);
+  }
+
+  @Post('make-payment')
+  @ApiOperation({ summary: `Pay for an order` })
+  async payForOrder(@Body() body: PayForOrderDto) {
+    return this.orderService.payForOrder(body);
   }
 }

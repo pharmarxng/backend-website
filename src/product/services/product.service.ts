@@ -19,24 +19,17 @@ export class ProductService {
     const { search, categoryId } = query;
     const condition = {};
 
-    if (search || categoryId) {
-      condition['$and'] = [];
+    if (search) {
+      condition['$or'].push({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+        ],
+      });
+    }
 
-      if (search) {
-        condition['$and'].push({
-          $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } },
-          ],
-        });
-      }
-
-      if (categoryId) {
-        if (!condition['$and']) {
-          condition['$and'] = [];
-        }
-        condition['$and'].push({ category: categoryId });
-      }
+    if (categoryId) {
+      condition['category'] = categoryId;
     }
 
     const foundProducts = await this.productsRepo.findManyWithPagination(

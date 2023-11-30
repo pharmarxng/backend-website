@@ -8,9 +8,14 @@ import { OrderDeliveryFeesRepository } from './repository/order-delivery-fees.re
 import { OrderedProductsRepository } from './repository/ordered-products.repository';
 import { ProductModule } from 'src/product/product.module';
 import { OrderDiscountVoucherRepository } from './repository';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
-  imports: [MongooseModule.forFeature(orderModuleCollections), ProductModule],
+  imports: [
+    MongooseModule.forFeature(orderModuleCollections),
+    ProductModule,
+    PaymentModule,
+  ],
   controllers: [OrderController],
   providers: [
     OrderService,

@@ -17,6 +17,7 @@ import { AdminModule } from './admin/admin.module';
 import { AdminSeeder } from './admin/seeder/admin.seeder';
 import { PaymentModule } from './payment/payment.module';
 import { OrderModule } from './order/order.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { OrderModule } from './order/order.module';
     AdminModule,
     PaymentModule,
     OrderModule,
+    HttpModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,7 +9,7 @@ import {
   Matches,
   ValidateNested,
 } from 'class-validator';
-import { DeliveryType } from 'src/common';
+import { DeliveryType, FindManyDto } from 'src/common';
 import { OrderedProducts } from '../models';
 
 export class CreateOrderDto {
@@ -26,7 +26,7 @@ export class CreateOrderDto {
   @Type(() => OrderedProducts)
   products: OrderedProducts[];
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEmail()
   @IsString()
   email?: string;
@@ -60,4 +60,21 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   discountCode?: string;
+}
+
+export class PayForOrderDto {
+  @IsNotEmpty()
+  @IsString()
+  orderId: string;
+
+  @IsOptional()
+  @IsString()
+  callback_url?: string;
+}
+
+export class FetchAllOrdersDto extends FindManyDto {
+  @IsOptional()
+  @IsEmail()
+  @IsString()
+  email?: string;
 }
