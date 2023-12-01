@@ -224,11 +224,9 @@ export class OrderService {
 
   private async generateOrderId() {
     const prefix = 'PH';
-    console.log('It got here 1');
     const order = await this.orderRepo.findOne({}, undefined, {
       sort: { createdAt: -1 },
     });
-    console.log('It got here 2');
 
     let currentOrderNumber =
       order && order.orderId ? +order.orderId.substring(2) : 0;

@@ -56,6 +56,7 @@ export class WebhookService {
         `No order found with the orderId: ${orderId}`,
       );
     }
+
     if (order.payment_reference === reference) {
       this.logger.debug(`Reference matched for order with id ${orderId}`);
 
@@ -82,7 +83,7 @@ export class WebhookService {
           channel: authorization.channel || channel,
           email: customer.email,
           gateway: 'paystack',
-          transaction_date: dayjs(paid_at).toISOString(),
+          transaction_date: paid_at,
           orderId: order.orderId,
         });
 

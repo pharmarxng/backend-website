@@ -27,7 +27,6 @@ export class WebhookController {
   @HttpCode(200)
   listen(@Req() req: Request, @Res() res: Response) {
     const eventObj = req.body;
-    console.log('It got here into the webhook', eventObj);
     const hash = crypto
       .createHmac(
         'sha512',
