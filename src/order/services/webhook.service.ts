@@ -7,7 +7,6 @@ import {
 import { OrderRepository } from 'src/order';
 import { ChargeDataDto, ChargeEventDto, PAYMENT_TYPE } from 'src/common';
 import { TransactionRepository } from 'src/payment';
-import dayjs from 'dayjs';
 
 @Injectable()
 export class WebhookService {
