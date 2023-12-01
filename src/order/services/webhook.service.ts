@@ -74,7 +74,7 @@ export class WebhookService {
       this.logger.debug('Transaction is not duplicate');
       const session = await this.transactionRepo.startTransaction();
       try {
-        const transactionObj = await this.transactionRepo.create({
+        await this.transactionRepo.create({
           amount: amount / 100, //convert from kobo to naira
           currency: currency,
           reference: reference,
@@ -101,6 +101,7 @@ export class WebhookService {
           await order.save();
           // save the updated order details to the database;
         }
+        await session.commitTransaction();
       } catch (err) {
         await session.abortTransaction();
         this.logger.error({ error: err });
