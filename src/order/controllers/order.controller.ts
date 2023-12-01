@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { OrderService } from './order.service';
-import { CreateOrderDto, FetchAllOrdersDto, PayForOrderDto } from './dtos';
+import { OrderService } from '../services/order.service';
+import { CreateOrderDto, FetchAllOrdersDto, PayForOrderDto } from '../dtos';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -51,5 +51,11 @@ export class OrderController {
   @ApiOperation({ summary: `Pay for an order` })
   async payForOrder(@Body() body: PayForOrderDto) {
     return this.orderService.payForOrder(body);
+  }
+
+  @Get('cancel-order/:id')
+  @ApiOperation({ summary: `Cancels the order` })
+  async cancelOrder(@Param('id') id: string) {
+    return this.orderService.cancelOrder(id);
   }
 }

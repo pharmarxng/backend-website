@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { OrderController } from './order.controller';
-import { OrderService } from './order.service';
+import { OrderController } from './controllers/order.controller';
+import { OrderService } from './services/order.service';
 import { OrderRepository } from './repository/order.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { orderModuleCollections } from './config';
@@ -9,6 +9,8 @@ import { OrderedProductsRepository } from './repository/ordered-products.reposit
 import { ProductModule } from 'src/product/product.module';
 import { OrderDiscountVoucherRepository } from './repository';
 import { PaymentModule } from 'src/payment/payment.module';
+import { WebhookController } from './controllers';
+import { WebhookService } from './services';
 
 @Module({
   imports: [
@@ -16,13 +18,14 @@ import { PaymentModule } from 'src/payment/payment.module';
     ProductModule,
     PaymentModule,
   ],
-  controllers: [OrderController],
+  controllers: [OrderController, WebhookController],
   providers: [
     OrderService,
     OrderRepository,
     OrderDeliveryFeesRepository,
     OrderedProductsRepository,
     OrderDiscountVoucherRepository,
+    WebhookService,
   ],
   exports: [OrderService],
 })

@@ -13,19 +13,20 @@ import {
   FetchAllOrdersDto,
   PayForOrderDto,
   UpdateDeliveryFeeDto,
-} from './dtos';
+} from '../dtos';
 import {
   DeliveryType,
   IInitializeTransactionRes,
+  OrderStatus,
   PaymentRequestPayload,
 } from 'src/common';
-import { OrderDiscountVoucherDocument, OrderedProducts } from './models';
+import { OrderDiscountVoucherDocument, OrderedProducts } from '../models';
 import {
   OrderRepository,
   OrderedProductsRepository,
   OrderDeliveryFeesRepository,
   OrderDiscountVoucherRepository,
-} from './repository';
+} from '../repository';
 import { ProductRepository } from 'src/product';
 import { PaystackPayService } from 'src/payment';
 import { catchError, lastValueFrom, map } from 'rxjs';
@@ -139,7 +140,13 @@ export class OrderService {
   }
 
   async fetchOrderById(id: string) {
-    const foundOrderInDb = await this.orderRepo.findOne({ _id: id });
+    const foundOrderInDb = await this.orderRepo.findById(
+      id,
+      {},
+      {
+        populate: ['products', 'deliveryFee', 'discountVoucher'],
+      },
+    );
     if (!foundOrderInDb) throw new NotFoundException(`Order ${id} not found`);
     return {
       statusCode: HttpStatus.OK,
@@ -149,9 +156,9 @@ export class OrderService {
   }
 
   async payForOrder(body: PayForOrderDto) {
-    const { orderId, callback_url } = body;
-    const foundOrderInDb = await this.orderRepo.findOne(
-      { orderId },
+    const { id, callback_url } = body;
+    const foundOrderInDb = await this.orderRepo.findById(
+      id,
       {},
       {
         populate: ['products'],
@@ -164,7 +171,7 @@ export class OrderService {
     const reqPayload: PaymentRequestPayload = {
       email: foundOrderInDb.email,
       amount: foundOrderInDb.total * 100, // convert to kobo
-      channels: ['card', 'ussd', 'qr', 'bank_transfer'],
+      channels: ['card', 'ussd', 'qr', 'bank_transfer', 'bank'],
       metadata: {
         full_name: foundOrderInDb.firstName,
         paymentType: 'ORDER_PAYMENT',
@@ -201,15 +208,32 @@ export class OrderService {
     };
   }
 
+  async cancelOrder(id: string) {
+    const foundOrderInDb = await this.orderRepo.findById(id);
+    if (!foundOrderInDb) throw new NotFoundException('Order not found');
+    if (foundOrderInDb.status === OrderStatus.COMPLETED)
+      throw new ConflictException('Order has already been completed');
+    foundOrderInDb.status = OrderStatus.CANCELLED;
+    const updatedOrderInDb = await foundOrderInDb.save();
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully cancelled order',
+      data: updatedOrderInDb,
+    };
+  }
+
   private async generateOrderId() {
     const prefix = 'PH';
-    const { orderId } = await this.orderRepo.findOne({}, undefined, {
+    console.log('It got here 1');
+    const order = await this.orderRepo.findOne({}, undefined, {
       sort: { createdAt: -1 },
     });
+    console.log('It got here 2');
 
-    let currentOrderNumber = orderId ? +orderId.substring(2) : 0;
+    let currentOrderNumber =
+      order && order.orderId ? +order.orderId.substring(2) : 0;
+
     // Increment the orderId
-
     currentOrderNumber++;
 
     // Convert the orderId to a string and pad with leading zeros to ensure at least three characters

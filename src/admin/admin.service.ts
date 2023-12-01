@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AdminRepository } from './repository/admin.repository';
 import { CreateDeliveryFeeDto, UpdateDeliveryFeeDto } from 'src/order';
-import { OrderService } from 'src/order/order.service';
+import { OrderService } from 'src/order/services/order.service';
 
 @Injectable()
 export class AdminService {

@@ -65,7 +65,7 @@ export class CreateOrderDto {
 export class PayForOrderDto {
   @IsNotEmpty()
   @IsString()
-  orderId: string;
+  id: string;
 
   @IsOptional()
   @IsString()

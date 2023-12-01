@@ -1,4 +1,4 @@
 export * from './dtos';
 export * from './models';
 export * from './repository';
-export * from './order.service';
+export * from './services/order.service';

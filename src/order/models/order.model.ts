@@ -159,7 +159,7 @@ export class Order {
 
   @Prop({ type: String })
   @IsOptional()
-  @IsEnum(OrderStatus)
+  @IsEnum(PAYMENT_TYPE)
   paymentType?: PAYMENT_TYPE;
 
   @Prop({ type: String })

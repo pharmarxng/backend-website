@@ -8,4 +8,5 @@ export enum Collections {
   orderedProducts = 'orderedProducts',
   orderDeliveryFees = 'orderDeliveryFees',
   orderDiscountVoucher = 'orderDiscountVoucher',
+  transactions = 'transactions',
 }
