@@ -11,12 +11,16 @@ import { OrderDiscountVoucherRepository } from './repository';
 import { PaymentModule } from 'src/payment/payment.module';
 import { WebhookController } from './controllers';
 import { WebhookService } from './services';
+import { AuthModule } from 'src/auth/auth.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature(orderModuleCollections),
     ProductModule,
     PaymentModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [OrderController, WebhookController],
   providers: [

@@ -9,12 +9,29 @@ export class UserService {
   constructor(private readonly userRepo: UserRepository) {}
 
   async findUserbyPhoneOrEmail(phone: string, email: string) {
-    return this.userRepo.findOne({
-      $or: [{ phone: phone }, { email: email }],
-    });
+    const query: any = {};
+
+    if (phone) {
+      query.$or = [{ phone }];
+    }
+
+    if (email) {
+      query.$or = query.$or || [];
+      query.$or.push({ email });
+    }
+
+    return this.userRepo.findOne(query);
+  }
+
+  async findUserbyEmail(email: string) {
+    return this.userRepo.findOne({ email: email });
+  }
+
+  async findUserbyPhone(phone: string) {
+    return this.userRepo.findOne({ phone: phone });
   }
 
   async createUser(user: Partial<IUser>) {
-    await this.userRepo.create(user);
+    return await this.userRepo.create(user);
   }
 }

@@ -1,6 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CategoryService } from '../services/category.service';
+import { MongoIdDto } from 'src/common';
 
 @ApiTags('Category')
 @ApiBearerAuth()
@@ -19,7 +20,7 @@ export class CategoryController {
 
   @Get(':id')
   @ApiOperation({ summary: `Gets a Category by id` })
-  async getCategoryById(@Param('id') id: string) {
-    return this.categoryService.getCategoryById(id);
+  async getCategoryById(@Param() params: MongoIdDto) {
+    return this.categoryService.getCategoryById(params.id);
   }
 }

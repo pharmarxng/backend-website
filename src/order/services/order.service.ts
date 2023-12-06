@@ -30,6 +30,9 @@ import {
 import { ProductRepository } from 'src/product';
 import { PaystackPayService } from 'src/payment';
 import { catchError, lastValueFrom, map } from 'rxjs';
+import { TokenService } from 'src/auth';
+import { UserService } from 'src/user';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class OrderService {
@@ -41,6 +44,8 @@ export class OrderService {
     private readonly productRepo: ProductRepository,
     private readonly orderDiscountVoucherRepo: OrderDiscountVoucherRepository,
     private readonly paystack: PaystackPayService,
+    private readonly tokenService: TokenService,
+    private readonly userService: UserService,
   ) {}
 
   async getDeliveryFees() {
@@ -241,8 +246,14 @@ export class OrderService {
   }
 
   private async createDeliveryOrder(body: CreateOrderDto) {
-    const { products, discountCode, postalCode, deliveryType, deliveryFee } =
-      body;
+    const {
+      products,
+      discountCode,
+      postalCode,
+      deliveryType,
+      deliveryFee,
+      email,
+    } = body;
 
     const validatedDetails = await this.validateDeliveryDetails(body);
     const { subTotal } = await this.calculateOrderSubTotal(products);
@@ -266,11 +277,30 @@ export class OrderService {
       orderId,
       products: savedOrderedProduct,
     });
+    let foundUserInDb;
+
+    foundUserInDb = await this.userService.findUserbyEmail(email);
+    if (!foundUserInDb) {
+      foundUserInDb = await this.userService.createUser({
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ...(({ deliveryFee, city, ...rest }) => rest)(validatedDetails),
+        password: email,
+      });
+    }
+    console.log({ foundUserInDb: foundUserInDb.id });
+
+    const { accessToken, refreshToken } =
+      await this.tokenService.handleCreateTokens(foundUserInDb.id);
 
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Successfully created order',
-      data: createdOrder,
+      data: {
+        order: createdOrder,
+        user: foundUserInDb,
+        accessToken,
+        refreshToken,
+      },
     };
   }
 
@@ -283,9 +313,7 @@ export class OrderService {
       deliveryFee,
       email,
     } = body;
-    if (!email) {
-      throw new BadRequestException(`Please provide valid email address`);
-    }
+    const validatedDetails = await this.validateDeliveryDetails(body);
     const { data } = await this.getDiscountVoucher(discountCode);
     const { subTotal } = await this.calculateOrderSubTotal(products);
     const total = await this.calculateTotalOrderPrice(subTotal, null, data);
@@ -293,6 +321,7 @@ export class OrderService {
     const orderId = await this.generateOrderId();
 
     const createdOrder = await this.orderRepo.create({
+      ...validatedDetails,
       deliveryFee,
       discountVoucher: data && data.id,
       postalCode,
@@ -300,14 +329,30 @@ export class OrderService {
       total,
       deliveryType,
       orderId,
-      email,
       products: savedOrderedProduct,
     });
+    let foundUserInDb;
+
+    foundUserInDb = await this.userService.findUserbyEmail(email);
+    if (!foundUserInDb) {
+      foundUserInDb = await this.userService.createUser({
+        ...validatedDetails,
+        password: email,
+      });
+    }
+
+    const { accessToken, refreshToken } =
+      await this.tokenService.handleCreateTokens(foundUserInDb.id);
 
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Successfully created order',
-      data: createdOrder,
+      data: {
+        order: createdOrder,
+        user: foundUserInDb,
+        accessToken,
+        refreshToken,
+      },
     };
   }
 
@@ -366,34 +411,50 @@ export class OrderService {
   }
 
   private async validateDeliveryDetails(body: CreateOrderDto) {
-    const { address, city, email, firstName, lastName, phone, deliveryFee } =
-      body;
-    if (!address || !city || !email || !firstName || !lastName || !phone) {
-      throw new BadRequestException(
-        `Provide delivery details (address, city, email, firstName, lastName and phone)`,
-      );
-    }
-
-    if (!deliveryFee)
-      throw new BadRequestException(
-        `Please select a standard delivery location for a pickup order`,
-      );
-
-    const foundDeliveryFeeInDb = await this.orderDeliveryFeesRepo.findOne({
-      _id: deliveryFee,
-    });
-
-    if (!foundDeliveryFeeInDb)
-      throw new NotFoundException(`Delivery fee selected does not exist`);
-
-    return {
+    const {
       address,
       city,
       email,
       firstName,
       lastName,
       phone,
-      deliveryFee: +foundDeliveryFeeInDb.price,
+      deliveryFee,
+      deliveryType,
+    } = body;
+    if (deliveryType === DeliveryType.delivery) {
+      if (!address || !city) {
+        throw new BadRequestException(
+          `Provide delivery details (address and city)`,
+        );
+      }
+
+      if (!deliveryFee)
+        throw new BadRequestException(
+          `Please select a standard delivery location for a pickup order`,
+        );
+
+      const foundDeliveryFeeInDb = await this.orderDeliveryFeesRepo.findById(
+        deliveryFee,
+      );
+
+      if (!foundDeliveryFeeInDb)
+        throw new NotFoundException(`Delivery fee selected does not exist`);
+
+      return {
+        address,
+        city,
+        email,
+        firstName,
+        lastName,
+        phone,
+        deliveryFee: +foundDeliveryFeeInDb.price,
+      };
+    }
+    return {
+      email,
+      firstName,
+      lastName,
+      phone,
     };
   }
 }

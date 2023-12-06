@@ -32,11 +32,11 @@ export type OrderDocument = HydratedDocument<Order>;
 })
 export class Order {
   @Prop({ type: String })
-  @IsOptional()
+  @IsNotEmpty()
   @IsEmail()
   @IsString()
   @ApiProperty({ type: String, example: 'test@yahoo.com' })
-  email?: string;
+  email: string;
 
   @Prop({ type: String, unique: true })
   @IsOptional()

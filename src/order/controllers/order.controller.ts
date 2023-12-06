@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { OrderService } from '../services/order.service';
 import { CreateOrderDto, FetchAllOrdersDto, PayForOrderDto } from '../dtos';
+import { MongoIdDto } from 'src/common';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -43,8 +44,8 @@ export class OrderController {
 
   @Get('fetch-order/:id')
   @ApiOperation({ summary: `Fetch an order by id` })
-  async fetchOrderById(@Param('id') id: string) {
-    return this.orderService.fetchOrderById(id);
+  async fetchOrderById(@Param() params: MongoIdDto) {
+    return this.orderService.fetchOrderById(params.id);
   }
 
   @Post('make-payment')
@@ -55,7 +56,8 @@ export class OrderController {
 
   @Get('cancel-order/:id')
   @ApiOperation({ summary: `Cancels the order` })
-  async cancelOrder(@Param('id') id: string) {
-    return this.orderService.cancelOrder(id);
+  async cancelOrder(@Param() params: MongoIdDto) {
+    return this.orderService.cancelOrder(params.id);
   }
 }
+// i love you

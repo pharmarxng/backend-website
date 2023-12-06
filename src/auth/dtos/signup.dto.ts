@@ -26,11 +26,11 @@ export class UserSignUpDto {
   @IsOptional()
   @IsEmail()
   @IsString()
-  email: string;
+  email?: string;
 
   @IsPhoneNumber()
   @IsOptional()
-  phone: string;
+  phone?: string;
 
   @IsString()
   @IsNotEmpty()

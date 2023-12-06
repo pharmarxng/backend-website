@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ProductService } from '../services/product.service';
-import { FindManyDto } from 'src/common';
+import { FindManyDto, MongoIdDto } from 'src/common';
 import { GetAllProductQueryDto } from '../dtos/get-products.dto';
 
 @ApiTags('Products')
@@ -36,7 +36,7 @@ export class ProductController {
 
   @Get(':id')
   @ApiOperation({ summary: `Gets a product by id` })
-  async getProductById(@Param('id') id: string) {
-    return this.productService.getProductById(id);
+  async getProductById(@Param() params: MongoIdDto) {
+    return this.productService.getProductById(params.id);
   }
 }

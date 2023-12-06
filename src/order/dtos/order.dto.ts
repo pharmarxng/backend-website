@@ -3,6 +3,7 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -19,6 +20,8 @@ export class CreateOrderDto {
 
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @IsMongoId({ message: 'deliveryFee must be valid with mongoose ObjectId' })
   deliveryFee: string;
 
   @IsArray()
@@ -28,16 +31,15 @@ export class CreateOrderDto {
 
   @IsNotEmpty()
   @IsEmail()
-  @IsString()
-  email?: string;
+  email: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  firstName?: string;
+  firstName: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  lastName?: string;
+  lastName: string;
 
   @IsOptional()
   @IsString()
@@ -47,11 +49,11 @@ export class CreateOrderDto {
   @IsString()
   city?: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @Matches(/^\+[1-9]\d{1,14}$/, {
     message: 'Phone number must be valid with + sign',
   })
-  phone?: string;
+  phone: string;
 
   @IsOptional()
   @IsString()
@@ -65,6 +67,7 @@ export class CreateOrderDto {
 export class PayForOrderDto {
   @IsNotEmpty()
   @IsString()
+  @IsMongoId({ message: 'id must be valid with mongoose ObjectId' })
   id: string;
 
   @IsOptional()

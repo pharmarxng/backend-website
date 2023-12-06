@@ -2,6 +2,7 @@ import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { CreateDeliveryFeeDto, UpdateDeliveryFeeDto } from 'src/order';
+import { MongoIdDto } from 'src/common';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -27,9 +28,9 @@ export class AdminController {
     summary: `Updates the standard delivery fees for different locations`,
   })
   async updateDeliveryFee(
-    @Param('id') id: string,
+    @Param() params: MongoIdDto,
     @Body() body: UpdateDeliveryFeeDto,
   ) {
-    return this.adminService.updateDeliveryFee(id, body);
+    return this.adminService.updateDeliveryFee(params.id, body);
   }
 }

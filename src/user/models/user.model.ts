@@ -36,7 +36,7 @@ export class User {
   })
   firstName: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, lowercase: true })
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -46,7 +46,7 @@ export class User {
   })
   lastName: string;
 
-  @Prop({ type: String, unique: true })
+  @Prop({ type: String, unique: true, sparce: true })
   @IsOptional()
   @IsString()
   @ApiProperty({
@@ -66,20 +66,20 @@ export class User {
   })
   address?: string;
 
-  @Prop({ type: String, unique: true })
-  @IsOptional()
+  @Prop({ type: String, unique: true, sparse: true })
+  @IsNotEmpty()
   @IsEmail()
   @IsString()
   @ApiProperty({ type: String, example: 'test@yahoo.com' })
   email: string;
 
-  @Prop({ unique: true })
+  @Prop({ unique: true, sparce: true })
   @IsOptional()
   @Matches(/^\+[1-9]\d{1,14}$/, {
     message: 'Phone number must be valid with + sign',
   })
   @ApiProperty({ type: String, example: '+639171234567' })
-  phone: string;
+  phone?: string;
 
   @Prop({ type: String })
   @IsNotEmpty()
@@ -88,7 +88,7 @@ export class User {
   @ApiProperty({
     type: String,
     minLength: 5,
-    description: 'User password',
+    description: `User's password`,
   })
   password: string;
 }

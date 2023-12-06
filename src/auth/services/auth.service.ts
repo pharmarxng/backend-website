@@ -7,10 +7,10 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserSignUpDto } from './dtos/signup.dto';
+import { UserSignUpDto } from '../dtos/signup.dto';
 import { IResponse } from 'src/common';
 import { UserService } from 'src/user/user.service';
-import { LoginDto } from './dtos/login.dto';
+import { LoginDto } from '../dtos/login.dto';
 import * as bcrypt from 'bcryptjs';
 import { TokenService } from './token.service';
 import { JwtService } from '@nestjs/jwt';
@@ -54,11 +54,18 @@ export class AuthService {
         `User already exists. Please login to continue`,
       );
 
-    await this.userService.createUser({ ...body });
+    const savedUserInDb = await this.userService.createUser({ ...body });
+    const { accessToken, refreshToken } =
+      await this.tokenService.handleCreateTokens(savedUserInDb.id);
 
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Sign up successful',
+      data: {
+        user: savedUserInDb,
+        accessToken,
+        refreshToken,
+      },
     };
   }
 

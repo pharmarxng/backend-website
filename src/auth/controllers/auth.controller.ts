@@ -1,8 +1,8 @@
 import { Body, Controller, Logger, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
-import { UserSignUpDto } from './dtos/signup.dto';
-import { LoginDto } from './dtos/login.dto';
+import { AuthService } from '../services/auth.service';
+import { UserSignUpDto } from '../dtos/signup.dto';
+import { LoginDto } from '../dtos/login.dto';
 
 @ApiTags('Auth')
 @ApiBearerAuth()
