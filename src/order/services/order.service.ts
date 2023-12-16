@@ -17,6 +17,7 @@ import {
 import {
   DeliveryType,
   IInitializeTransactionRes,
+  IUser,
   OrderStatus,
   PaymentRequestPayload,
 } from 'src/common';
@@ -32,7 +33,6 @@ import { PaystackPayService } from 'src/payment';
 import { catchError, lastValueFrom, map } from 'rxjs';
 import { TokenService } from 'src/auth';
 import { UserService } from 'src/user';
-import mongoose from 'mongoose';
 
 @Injectable()
 export class OrderService {
@@ -111,15 +111,15 @@ export class OrderService {
     };
   }
 
-  async createOrder(body: CreateOrderDto) {
+  async createOrder(body: CreateOrderDto, user: IUser) {
     const { deliveryType } = body;
 
     if (deliveryType === DeliveryType.pickup) {
-      return this.createPickupOrder(body);
+      return this.createPickupOrder(body, user);
     }
 
     if (deliveryType === DeliveryType.delivery) {
-      return this.createDeliveryOrder(body);
+      return this.createDeliveryOrder(body, user);
     }
 
     return {
@@ -127,14 +127,9 @@ export class OrderService {
       message: 'Cannot process order creation request',
     };
   }
-  async fetchAllOrders(query: FetchAllOrdersDto) {
-    const { email } = query;
-    const condition = {};
-    if (email) {
-      condition['email'] = email;
-    }
+  async fetchAllOrders(query: FetchAllOrdersDto, user: IUser) {
     const foundOrdersInDb = await this.orderRepo.findManyWithPagination(
-      condition,
+      { user: user.id },
       query,
     );
     return {
@@ -245,7 +240,7 @@ export class OrderService {
     return prefix + paddedOrderId;
   }
 
-  private async createDeliveryOrder(body: CreateOrderDto) {
+  private async createDeliveryOrder(body: CreateOrderDto, user: IUser) {
     const {
       products,
       discountCode,
@@ -265,6 +260,23 @@ export class OrderService {
     );
     const savedOrderedProduct = await this.createOrderedProduct(products);
     const orderId = await this.generateOrderId();
+    let foundUserInDb;
+
+    if (!user) {
+      foundUserInDb = await this.userService.findUserbyEmail(email);
+      if (!foundUserInDb) {
+        foundUserInDb = await this.userService.createUser({
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ...(({ deliveryFee, city, ...rest }) => rest)(validatedDetails),
+          password: email,
+        });
+      }
+    }
+
+    const { accessToken, refreshToken } =
+      await this.tokenService.handleCreateTokens(
+        user ? user.id : foundUserInDb.id,
+      );
 
     const createdOrder = await this.orderRepo.create({
       ...validatedDetails,
@@ -276,21 +288,8 @@ export class OrderService {
       deliveryType,
       orderId,
       products: savedOrderedProduct,
+      user: user ? user.id : foundUserInDb.id,
     });
-    let foundUserInDb;
-
-    foundUserInDb = await this.userService.findUserbyEmail(email);
-    if (!foundUserInDb) {
-      foundUserInDb = await this.userService.createUser({
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ...(({ deliveryFee, city, ...rest }) => rest)(validatedDetails),
-        password: email,
-      });
-    }
-    console.log({ foundUserInDb: foundUserInDb.id });
-
-    const { accessToken, refreshToken } =
-      await this.tokenService.handleCreateTokens(foundUserInDb.id);
 
     return {
       statusCode: HttpStatus.CREATED,
@@ -304,25 +303,34 @@ export class OrderService {
     };
   }
 
-  private async createPickupOrder(body: CreateOrderDto) {
-    const {
-      products,
-      discountCode,
-      postalCode,
-      deliveryType,
-      deliveryFee,
-      email,
-    } = body;
+  private async createPickupOrder(body: CreateOrderDto, user: IUser) {
+    const { products, discountCode, postalCode, deliveryType, email } = body;
     const validatedDetails = await this.validateDeliveryDetails(body);
     const { data } = await this.getDiscountVoucher(discountCode);
     const { subTotal } = await this.calculateOrderSubTotal(products);
     const total = await this.calculateTotalOrderPrice(subTotal, null, data);
     const savedOrderedProduct = await this.createOrderedProduct(products);
     const orderId = await this.generateOrderId();
+    let foundUserInDb;
+
+    if (!user) {
+      foundUserInDb = await this.userService.findUserbyEmail(email);
+      if (!foundUserInDb) {
+        foundUserInDb = await this.userService.createUser({
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ...(({ deliveryFee, city, ...rest }) => rest)(validatedDetails),
+          password: email,
+        });
+      }
+    }
+
+    const { accessToken, refreshToken } =
+      await this.tokenService.handleCreateTokens(
+        user ? user.id : foundUserInDb.id,
+      );
 
     const createdOrder = await this.orderRepo.create({
       ...validatedDetails,
-      deliveryFee,
       discountVoucher: data && data.id,
       postalCode,
       subTotal,
@@ -330,19 +338,8 @@ export class OrderService {
       deliveryType,
       orderId,
       products: savedOrderedProduct,
+      user: user ? user.id : foundUserInDb.id,
     });
-    let foundUserInDb;
-
-    foundUserInDb = await this.userService.findUserbyEmail(email);
-    if (!foundUserInDb) {
-      foundUserInDb = await this.userService.createUser({
-        ...validatedDetails,
-        password: email,
-      });
-    }
-
-    const { accessToken, refreshToken } =
-      await this.tokenService.handleCreateTokens(foundUserInDb.id);
 
     return {
       statusCode: HttpStatus.CREATED,

@@ -1,8 +1,22 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { OrderService } from '../services/order.service';
 import { CreateOrderDto, FetchAllOrdersDto, PayForOrderDto } from '../dtos';
-import { MongoIdDto } from 'src/common';
+import {
+  AuthenticatedUser,
+  IUser,
+  JwtOptionalUserAuthGuard,
+  JwtUserAuthGuard,
+  MongoIdDto,
+} from 'src/common';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -29,8 +43,12 @@ export class OrderController {
 
   @Post('create-order')
   @ApiOperation({ summary: `Create a new order` })
-  async createOrder(@Body() body: CreateOrderDto) {
-    return this.orderService.createOrder(body);
+  @UseGuards(JwtOptionalUserAuthGuard)
+  async createOrder(
+    @Body() body: CreateOrderDto,
+    @AuthenticatedUser() user: IUser,
+  ) {
+    return this.orderService.createOrder(body, user);
   }
 
   @Get('fetch-all-orders')
@@ -38,8 +56,12 @@ export class OrderController {
     summary: `Fetch all orders`,
     description: `Can be filtered by passing in an email`,
   })
-  async fetchAllOrders(@Query() query: FetchAllOrdersDto) {
-    return this.orderService.fetchAllOrders(query);
+  @UseGuards(JwtUserAuthGuard)
+  async fetchAllOrders(
+    @Query() query: FetchAllOrdersDto,
+    @AuthenticatedUser() user: IUser,
+  ) {
+    return this.orderService.fetchAllOrders(query, user);
   }
 
   @Get('fetch-order/:id')

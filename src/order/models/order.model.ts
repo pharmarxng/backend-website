@@ -194,6 +194,12 @@ export class Order {
     ],
   })
   products: OrderedProducts[];
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Collections.users,
+  })
+  user: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
