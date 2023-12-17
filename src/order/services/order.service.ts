@@ -128,8 +128,15 @@ export class OrderService {
     };
   }
   async fetchAllOrders(query: FetchAllOrdersDto, user: IUser) {
+    const { search } = query;
+    const condition = { user: user.id };
+
+    if (search) {
+      condition['orderId'] = { $regex: search, $options: 'i' };
+    }
+
     const foundOrdersInDb = await this.orderRepo.findManyWithPagination(
-      { user: user.id },
+      condition,
       query,
     );
     return {
@@ -167,6 +174,7 @@ export class OrderService {
     if (!foundOrderInDb) throw new NotFoundException('Order not found');
     if (foundOrderInDb.isPaid)
       throw new ConflictException('Order has been paid for already');
+    // Todo: check if the items are still available in the database(Cancel order if not available)
     // Todo: modify for order voucher
     const reqPayload: PaymentRequestPayload = {
       email: foundOrderInDb.email,

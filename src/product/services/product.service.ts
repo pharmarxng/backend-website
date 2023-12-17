@@ -20,12 +20,10 @@ export class ProductService {
     const condition = {};
 
     if (search) {
-      condition['$or'].push({
-        $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } },
-        ],
-      });
+      condition['$or'] = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
     }
 
     if (categoryId) {

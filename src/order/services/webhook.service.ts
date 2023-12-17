@@ -96,6 +96,7 @@ export class WebhookService {
           await order.save();
 
           // Todo inform the order service that the order payment has been received
+          // Todo reduce the amount of available products
         } else {
           order.isPaid = false;
           await order.save();
