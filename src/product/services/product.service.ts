@@ -8,12 +8,16 @@ import { FindManyDto } from 'src/common';
 import { ProductRepository } from '../repository/product.repository';
 import { AddProductDto } from '../dtos/add-product.dto';
 import { GetAllProductQueryDto } from '../dtos/get-products.dto';
+import { CategoryRepository } from '../repository';
 
 @Injectable()
 export class ProductService {
   private readonly logger: Logger = new Logger(ProductService.name);
 
-  constructor(private readonly productsRepo: ProductRepository) {}
+  constructor(
+    private readonly productsRepo: ProductRepository,
+    private readonly categoryRepo: CategoryRepository,
+  ) {}
 
   async getAllProducts(query: GetAllProductQueryDto) {
     const { search, categoryId } = query;
@@ -52,6 +56,29 @@ export class ProductService {
       statusCode: HttpStatus.OK,
       message: 'Successfully retrieved products',
       data: foundProducts,
+    };
+  }
+
+  async getFlashProducts() {
+    const foundCategory = await this.categoryRepo.find();
+    console.log({ foundCategory });
+    const foundProductsInDb = [];
+    for (let index = 0; index < foundCategory.length; index++) {
+      const element = foundCategory[index];
+      const foundProd = await this.productsRepo.findOne(
+        {
+          category: element._id,
+        },
+        null,
+        { sort: { rating: -1 } },
+      );
+      foundProductsInDb.push(foundProd);
+    }
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully retrieved products',
+      data: foundProductsInDb,
     };
   }
 

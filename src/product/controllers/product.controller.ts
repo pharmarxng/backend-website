@@ -28,6 +28,12 @@ export class ProductController {
     return this.productService.getProductsByCategory(query, categoryId);
   }
 
+  @Get('get-flash-products')
+  @ApiOperation({ summary: `Get products by category` })
+  async getFlashProducts() {
+    return this.productService.getFlashProducts();
+  }
+
   @Get('get-trending-products')
   @ApiOperation({ summary: `Get a list of trending products` })
   async getTrendingProducts() {

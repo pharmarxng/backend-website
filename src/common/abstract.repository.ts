@@ -28,6 +28,10 @@ export abstract class AbstractRepository<T extends Document> {
     return this.model.countDocuments(filterQuery);
   }
 
+  async aggregate(pipeline: Record<string, any>[]): Promise<any[]> {
+    return this.model.aggregate(pipeline as any[]);
+  }
+
   /**
    * It returns a single document from the database that matches the filter query
    * @param filterQuery - FilterQuery<T>
