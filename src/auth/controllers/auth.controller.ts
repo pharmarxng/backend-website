@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { UserSignUpDto } from '../dtos/signup.dto';
 import { LoginDto } from '../dtos/login.dto';
+import { OnboardAdminDto } from '../dtos/admin.dto';
 
 @ApiTags('Auth')
 @ApiBearerAuth()
@@ -32,5 +33,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh token on access token expiration' })
   async handleRefreshToken(@Query('token') token: string) {
     return this.authService.refreshToken(token);
+  }
+
+  @Post('process/onboard-admin')
+  @ApiOperation({
+    summary: 'Signs a new user up',
+  })
+  async onboardAdmin(@Body() body: OnboardAdminDto) {
+    return this.authService.onboardAdmin(body);
   }
 }

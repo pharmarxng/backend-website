@@ -18,6 +18,10 @@ import { AdminSeeder } from './admin/seeder/admin.seeder';
 import { PaymentModule } from './payment/payment.module';
 import { OrderModule } from './order/order.module';
 import { HttpModule } from '@nestjs/axios';
+import { MailingModule } from './mailing/mailing.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -33,6 +37,17 @@ import { HttpModule } from '@nestjs/axios';
     PaymentModule,
     OrderModule,
     HttpModule,
+    MailingModule,
+    MailerModule.forRoot({
+      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
+      template: {
+        dir: process.cwd() + '/templates/',
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true,
+        },
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

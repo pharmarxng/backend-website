@@ -4,6 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { Collections } from 'src/collections';
+import { ProductDocument } from 'src/product';
 
 export type OrderedProductsDocument = HydratedDocument<OrderedProducts>;
 
@@ -30,7 +31,7 @@ export class OrderedProducts {
     example: '655e2ddb3a4707e32e9ce601',
     description: 'Ids of products',
   })
-  productId: string;
+  productId: ProductDocument;
 
   @Prop({ type: Number, required: true })
   @IsNotEmpty()

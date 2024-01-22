@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { HttpLoggerMiddleware } from './http-logger.middleware';
 import {
+  JwtAdminAuthGuard,
+  JwtAdminPassportStrategy,
   JwtOptionalUserAuthGuard,
   JwtOptionalUserPassportStrategy,
   JwtUserAuthGuard,
   JwtUserPassportStrategy,
 } from './guards';
 import { UserModule } from 'src/user/user.module';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
   exports: [
@@ -15,8 +18,10 @@ import { UserModule } from 'src/user/user.module';
     JwtUserAuthGuard,
     JwtUserPassportStrategy,
     JwtOptionalUserPassportStrategy,
+    JwtAdminPassportStrategy,
+    JwtAdminAuthGuard,
   ],
-  imports: [UserModule],
+  imports: [UserModule, AdminModule],
   controllers: [],
   providers: [
     HttpLoggerMiddleware,
@@ -24,6 +29,8 @@ import { UserModule } from 'src/user/user.module';
     JwtUserAuthGuard,
     JwtUserPassportStrategy,
     JwtOptionalUserPassportStrategy,
+    JwtAdminPassportStrategy,
+    JwtAdminAuthGuard,
   ],
 })
 export class CommonModule {}

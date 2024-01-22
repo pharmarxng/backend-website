@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MinLength, Matches } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, IsEmail } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { AdminRole } from 'src/common';
@@ -40,20 +40,20 @@ export class Admin {
   })
   lastName: string;
 
-  // @Prop({ type: String, unique: true })
-  // @IsNotEmpty()
-  // @IsEmail()
-  // @IsString()
-  // @ApiProperty({ type: String, example: 'test@yahoo.com' })
-  // email: string;
-
-  @Prop({ unique: true })
+  @Prop({ type: String, unique: true })
   @IsNotEmpty()
-  @Matches(/^\+[1-9]\d{1,14}$/, {
-    message: 'Phone number must be valid with + sign',
-  })
-  @ApiProperty({ type: String, example: '+639171234567' })
-  phone: string;
+  @IsEmail()
+  @IsString()
+  @ApiProperty({ type: String, example: 'test@yahoo.com' })
+  email: string;
+
+  // @Prop({ unique: true })
+  // @IsNotEmpty()
+  // @Matches(/^\+[1-9]\d{1,14}$/, {
+  //   message: 'Phone number must be valid with + sign',
+  // })
+  // @ApiProperty({ type: String, example: '+639171234567' })
+  // phone: string;
 
   @Prop({ type: String })
   @IsNotEmpty()

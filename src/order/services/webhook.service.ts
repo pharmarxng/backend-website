@@ -5,8 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderRepository } from 'src/order';
-import { ChargeDataDto, ChargeEventDto, PAYMENT_TYPE } from 'src/common';
+import {
+  ChargeDataDto,
+  ChargeEventDto,
+  PAYMENT_TYPE,
+  TEMPLATE_NAME,
+} from 'src/common';
 import { TransactionRepository } from 'src/payment';
+import { MailingService } from 'src/mailing/mailing.service';
 
 @Injectable()
 export class WebhookService {
@@ -14,6 +20,7 @@ export class WebhookService {
   constructor(
     private readonly transactionRepo: TransactionRepository,
     private orderRepo: OrderRepository,
+    private mailingService: MailingService,
   ) {}
 
   async handleWebhookEvent(eventObj: ChargeEventDto) {
@@ -47,9 +54,21 @@ export class WebhookService {
       metadata,
     } = data;
     const { orderId } = metadata;
-    const order = await this.orderRepo.findOne({
-      orderId,
-    });
+    const order = await this.orderRepo.findOne(
+      {
+        orderId,
+      },
+      null,
+      {
+        populate: [
+          'discountVoucher',
+          'deliveryFee',
+          'products',
+          'products.productId',
+          'user',
+        ],
+      },
+    );
     if (!order) {
       throw new NotFoundException(
         `No order found with the orderId: ${orderId}`,
@@ -96,6 +115,7 @@ export class WebhookService {
           await order.save();
 
           // Todo inform the order service that the order payment has been received
+          this.mailingService.sendMail(order, TEMPLATE_NAME.ORDER_CONFIRMATION);
           // Todo reduce the amount of available products
         } else {
           order.isPaid = false;

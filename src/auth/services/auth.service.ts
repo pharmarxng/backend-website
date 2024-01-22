@@ -14,6 +14,7 @@ import { LoginDto } from '../dtos/login.dto';
 import * as bcrypt from 'bcryptjs';
 import { TokenService } from './token.service';
 import { JwtService } from '@nestjs/jwt';
+import { OnboardAdminDto } from '../dtos/admin.dto';
 
 @Injectable()
 export class AuthService {
@@ -127,4 +128,6 @@ export class AuthService {
       },
     };
   }
+
+  async onboardAdmin(body: OnboardAdminDto) {}
 }

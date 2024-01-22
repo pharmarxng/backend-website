@@ -13,9 +13,11 @@ import {
 import mongoose, { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { DeliveryType, OrderStatus, PAYMENT_TYPE } from 'src/common';
-import { OrderedProducts } from './ordered-products.model';
+import { OrderedProductsDocument } from './ordered-products.model';
 import { Collections } from 'src/collections';
 import { Transform } from 'class-transformer';
+import { UserDocument } from 'src/user';
+import { OrderDeliveryFeesDocument } from './order-delivery-fees.model';
 
 export type OrderDocument = HydratedDocument<Order>;
 
@@ -130,7 +132,7 @@ export class Order {
     ref: Collections.orderDeliveryFees,
     required: false,
   })
-  deliveryFee?: string;
+  deliveryFee?: OrderDeliveryFeesDocument;
 
   @Prop({ type: Number, default: 0 })
   @IsNotEmpty()
@@ -193,13 +195,13 @@ export class Order {
       },
     ],
   })
-  products: OrderedProducts[];
+  products: OrderedProductsDocument[];
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: Collections.users,
   })
-  user: string;
+  user: UserDocument;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

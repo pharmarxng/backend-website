@@ -13,6 +13,8 @@ import { WebhookController } from './controllers';
 import { WebhookService } from './services';
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
+import { MailingModule } from 'src/mailing/mailing.module';
+import { MailingService } from 'src/mailing/mailing.service';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { UserModule } from 'src/user/user.module';
     PaymentModule,
     AuthModule,
     UserModule,
+    MailingModule,
   ],
   controllers: [OrderController, WebhookController],
   providers: [
@@ -30,6 +33,7 @@ import { UserModule } from 'src/user/user.module';
     OrderedProductsRepository,
     OrderDiscountVoucherRepository,
     WebhookService,
+    MailingService,
   ],
   exports: [OrderService],
 })

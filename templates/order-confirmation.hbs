@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation</title>
+</head>
+
+<body>
+  <div style="padding: 50px">
+    <div style="display: grid; gap: 20px">
+      <div>
+        <div><img
+            src="https://pharmarxng.com/images/pharmarxlogo.png"
+            alt="Pharmarx" width="180" class="CToWUd" data-bit="iit">
+        </div>
+        <div style="display: flex; justify-content: end">
+          <span style="font-size:16px color;
+          text-transform: uppercase;
+          color: #999">
+            Order #{{orderId}}
+          </span>
+        </div>
+        <div style="display:grid; gap: 40px">
+          <h2 style="font-weight:normal;font-size:24px;margin:0 0 10px">
+            Thank you for your purchase!
+          </h2>
+          {{!-- <p style="color:#777;line-height:150%;font-size:18px;margin:0">We're getting your order ready to be shipped.
+            We will notify you when it has been sent.</p> --}}
+          <div style="display: flex; align-items: center; gap: 20px;">
+            <a
+              href="https://pharmarxng.com/order-details/{{id}}"
+              style="padding: 30px; background-color: black; border-radius: 4px; color: white; font-size: 16px; padding: 20px 25px; text-decoration: none;"
+            >
+              View your order
+            </a>
+            <a href="https://pharmarxng.com/" style="padding-left: 4px; text-decoration: none;">or Visit our store</a>
+          </div>
+
+        </div>
+      </div>
+      <div>
+        <div style="font-weight: normal; font-size: 25px; margin: 0 0 25px;">Order summary</div>
+        <table style="width:560px;text-align:left;border-spacing:0;border-collapse:collapse;margin:0 auto">
+          {{#each products}}
+            <tbody>
+            <table style="width:100%;border-spacing:0;border-collapse:collapse; border-bottom: 1px solid #e5e5e5;">
+              <tr>
+                <td>
+                  <img
+                    src="{{product.image}}"
+                    width="60" height="60" style="margin-right:15px;border-radius:8px;border:1px solid #e5e5e5"
+                    class="CToWUd" data-bit="iit">
+                </td>
+                <td style="width:100%">
+                  <span style="font-size:16px;font-weight:600;line-height:1.4;color:#555">{{product.name}} &nbsp;×&nbsp;{{quantity}}</span><br>
+                </td>
+                <td style="white-space:nowrap">
+                  <p style="color:#555;line-height:150%;font-size:16px;font-weight:600;margin:0 0 0 15px">
+                    ₦{{price}}.00
+                  </p>
+                </td>
+              </tr>
+          </tbody>
+          {{/each}}
+
+          {{!-- <tbody>
+            <table style="width:100%;border-spacing:0;border-collapse:collapse; border-bottom: 1px solid #e5e5e5;">
+              <tr>
+                <td>
+                  <img
+                    src="https://ci3.googleusercontent.com/meips/ADKq_NYnT43f1bJLZnUIwkwtCyFK1-66FHTxdXVgwZ8q3t949v3hpaIcZ_Thv7-BOL8Xpbt1XMDFhOhnYWNTaLsIKdEr6Bs0fH5OSBuX7bWpiJ9A8UgAEFRizoOBfxs66xuCx00SKS-kDDYNwC3x6kFCqvz3qgHTr9YzvIDScUMoWt3pgcNh45y6PxzPgG-qk8UVxtzJ30dcIBzN-5EOgkeXmXEQ=s0-d-e1-ft#https://cdn.shopify.com/s/files/1/0526/8471/8280/files/AYA6895_900x_1b266401-67d2-43a8-a583-6f495132bee5_compact_cropped.webp?v=1686012656"
+                    width="60" height="60" style="margin-right:15px;border-radius:8px;border:1px solid #e5e5e5"
+                    class="CToWUd" data-bit="iit">
+                </td>
+                <td style="width:100%">
+                  <span style="font-size:16px;font-weight:600;line-height:1.4;color:#555">TW 320 Case of
+                    24 Boxes
+                    (Lagos)&nbsp;×&nbsp;10</span><br>
+                </td>
+                <td style="white-space:nowrap">
+                  <p style="color:#555;line-height:150%;font-size:16px;font-weight:600;margin:0 0 0 15px">
+                    ₦100,800.00
+                  </p>
+                </td>
+              </tr>
+          </tbody> --}}
+
+          <table style="width:100%;border-spacing:0;border-collapse:collapse;margin-top:15px;">
+            <tbody>
+              <table></table>
+              <table style="width:100%;border-spacing:0;border-collapse:collapse;margin-top:20px;">
+                <tbody style="text-align:right">
+                  <tr>
+                    <td style="padding:2px 0; color: #777;line-height:1.2em;font-size:16px;width: 70%;" >
+                      Subtotal
+                    </td>
+                    <td style="padding:2px 0; font-size:16px;">
+                      ₦{{subTotal}}.00
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="font-family:-apple-system; padding:2px 0">
+                      <p style="color:#777;line-height:1.2em;font-size:16px;margin:0">
+                        <span style="font-size:16px">Shipping</span>
+                      </p>
+                    </td>
+                    <td style="font-family:-apple-system; padding:2px 0">
+                      <span style="font-size:16px">₦{{shippingFee}}.00</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:2px 0">
+                      <p style="color:#777;line-height:1.2em;font-size:16px;margin:0">
+                        <span style="font-size:16px">Taxes</span>
+                      </p>
+                    </td>
+                    <td style="padding:2px 0">
+                      <span style="font-size:16px">₦0.00</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <table
+                style="width:100%;border-spacing:0;border-collapse:collapse;margin-top:20px;border-top-width:2px;border-top-color:#e5e5e5;border-top-style:solid">
+
+                <tbody style="text-align:right">
+                  <tr>
+                    <td style="padding:20px 0 0 ;width: 70%;">
+                      <p style="color:#777;line-height:1.2em;font-size:16px;margin:0">
+                        <span style="font-size:16px">Total paid today</span>
+                      </p>
+                    </td>
+                    <td style="padding:20px 0 0">
+                      <span style="font-size:16px">₦{{total}}.00 NGN</span>
+                    </td>
+                  </tr>
+
+                  {{!-- <tr>
+                    <td style="padding:20px 0 0">
+                      <p style="color:#777;line-height:1.2em;font-size:16px;margin:0">
+                        <span style="font-size:16px">Total due </span>
+                      </p>
+                    </td>
+                    <td style="padding:20px 0 0">
+                      <span style="font-size:16px">₦157,800.00 NGN</span>
+                    </td>
+                  </tr> --}}
+                </tbody>
+              </table>
+            </tbody>
+          </table>
+        </table>
+      </div>
+      <div>
+
+        <table style="width:100%;text-align:left;border-spacing:0;border-collapse:collapse;margin:25px auto">
+          <caption style="font-weight:normal;font-size:25px;margin:25px 0 25px; text-align: left">
+            Customer information
+          </caption>
+          <tbody>
+            <tr>
+              {{#if deliverToUser}}
+                <td style="font-family:-apple-system,BlinkMacSystemFont; padding-bottom:40px;width:50%" valign="top">
+                  <h4 style="font-weight:500;font-size:16px;color:#555;margin:0 0 5px">Shipping address</h4>
+                  <p style="color:#777;line-height:150%;font-size:16px;margin:0">{{address}}</p>
+                </td>
+              {{/if}}
+              <td style="font-family:-apple-system,BlinkMacSystemFont;padding-bottom:40px;width:50%" valign="top">
+                <h4 style="font-weight:500;font-size:16px;color:#555;margin:0 0 5px">Billing address</h4>
+                <p style="color:#777;line-height:150%;font-size:16px;margin:0">{{address}}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-family:-apple-system,BlinkMacSystemFont;padding-bottom:40px;width:50%" valign="top">
+                <h4 style="font-weight:500;font-size:16px;color:#555;margin:0 0 5px">Payment</h4>
+                
+                <p style="color:#777;line-height:150%;font-size:16px;margin:0">
+                  {{#if isPaid}}
+                    Success<br>
+                  {{else}}
+                    Not Successful.
+                  {{/if}}                 
+                </p>
+              </td>
+            </tr>
+            <tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+</body>
+
+</html>

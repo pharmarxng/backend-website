@@ -61,7 +61,6 @@ export class ProductService {
 
   async getFlashProducts() {
     const foundCategory = await this.categoryRepo.find();
-    console.log({ foundCategory });
     const foundProductsInDb = [];
     for (let index = 0; index < foundCategory.length; index++) {
       const element = foundCategory[index];
