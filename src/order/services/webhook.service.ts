@@ -8,20 +8,30 @@ import { OrderRepository } from 'src/order';
 import {
   ChargeDataDto,
   ChargeEventDto,
+  DeliveryType,
   PAYMENT_TYPE,
-  TEMPLATE_NAME,
+  TEMPLATE_KEY,
 } from 'src/common';
 import { TransactionRepository } from 'src/payment';
 import { MailingService } from 'src/mailing/mailing.service';
+import { ZeptoMailService } from 'src/mailing/Zeptomail.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class WebhookService {
   logger = new Logger(WebhookService.name);
+  private phone;
+  private baseUrl;
   constructor(
     private readonly transactionRepo: TransactionRepository,
     private orderRepo: OrderRepository,
     private mailingService: MailingService,
-  ) {}
+    private zeptoMailService: ZeptoMailService,
+    private configService: ConfigService,
+  ) {
+    this.phone = this.configService.get<string>('ADMIN_PHONE');
+    this.baseUrl = this.configService.get('FRONTEND_BASE_URL');
+  }
 
   async handleWebhookEvent(eventObj: ChargeEventDto) {
     switch (eventObj.event) {
@@ -61,11 +71,10 @@ export class WebhookService {
       null,
       {
         populate: [
-          'discountVoucher',
-          'deliveryFee',
-          'products',
-          'products.productId',
-          'user',
+          { path: 'discountVoucher' },
+          { path: 'deliveryFee' },
+          { path: 'products', populate: { path: 'productId' } },
+          { path: 'user' },
         ],
       },
     );
@@ -113,9 +122,38 @@ export class WebhookService {
             (authorization.channel as PAYMENT_TYPE) ||
             (channel as PAYMENT_TYPE);
           await order.save();
+          console.log('It got here');
+          console.log({ products: order.products });
 
           // Todo inform the order service that the order payment has been received
-          this.mailingService.sendMail(order, TEMPLATE_NAME.ORDER_CONFIRMATION);
+          await this.zeptoMailService.sendmail(
+            TEMPLATE_KEY.ORDER_CONFIRMATION,
+            {
+              email: order.email,
+              name: order.firstName,
+            },
+            {
+              firstName: order.firstName,
+              delivery:
+                order.deliveryType === DeliveryType.delivery ? true : false,
+              address: order.address,
+              orderId: order.orderId,
+              orderDate: new Date(),
+              products: order.products.map((product) => ({
+                image: product.productId.image,
+                name: product.productId.name,
+                quantity: product.quantity,
+                price: product.productId.price,
+              })),
+              subTotal: order.subTotal,
+              shiping: order.deliveryFee ? order.deliveryFee.price : 0,
+              tax: 0,
+              total: order.total,
+              phone: this.phone,
+              orderLink: `${this.baseUrl}/order-details/${order.id}`,
+            },
+          );
+          console.log('It got here tooo');
           // Todo reduce the amount of available products
         } else {
           order.isPaid = false;
@@ -125,6 +163,7 @@ export class WebhookService {
         await session.commitTransaction();
       } catch (err) {
         await session.abortTransaction();
+        console.log({ error: err });
         this.logger.error({ error: err });
 
         throw new InternalServerErrorException(

@@ -1,11 +1,23 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { CreateDeliveryFeeDto, UpdateDeliveryFeeDto } from 'src/order';
 import { MongoIdDto } from 'src/common';
+import { JwtAdminAuthGuard } from './guards';
+import { AuthenticatedAdmin } from './decorators';
+import { AdminDocument } from './models/admin.model';
+import { InviteAdminDto } from './dtos';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
+@UseGuards(JwtAdminAuthGuard)
 @Controller({
   version: '1',
   path: 'admin',
@@ -13,7 +25,12 @@ import { MongoIdDto } from 'src/common';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  // async inviteAdmin() {}
+  async inviteAdmin(
+    @Body() body: InviteAdminDto,
+    @AuthenticatedAdmin() admin: AdminDocument,
+  ) {
+    return this.adminService.inviteAdmin(body, admin);
+  }
 
   @Post('create-delivery-fee')
   @ApiOperation({
