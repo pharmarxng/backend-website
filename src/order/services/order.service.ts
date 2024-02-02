@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   HttpStatus,
   Injectable,
   InternalServerErrorException,
@@ -49,12 +50,21 @@ export class OrderService {
   ) {}
 
   async getDeliveryFees() {
-    const foundDeliveryFeesInDd = await this.orderDeliveryFeesRepo.find();
+    const foundDeliveryFeesInDb = await this.orderDeliveryFeesRepo.find();
 
     return {
       statusCode: HttpStatus.OK,
       message: 'Successfully fetched delivery fees',
-      data: foundDeliveryFeesInDd,
+      data: foundDeliveryFeesInDb,
+    };
+  }
+
+  async getDeliveryFeeById(id: string) {
+    const foundDeliveryFeeInDb = await this.orderDeliveryFeesRepo.findById(id);
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully fetched delivery fee',
+      data: foundDeliveryFeeInDb,
     };
   }
 
@@ -111,6 +121,17 @@ export class OrderService {
     };
   }
 
+  async deleteDeliveryFee(id: string) {
+    const deletedDeliveryFeeInDb =
+      await this.orderDeliveryFeesRepo.findOneAndDelete({ _id: id });
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully updated delivery fees',
+      data: deletedDeliveryFeeInDb,
+    };
+  }
+
   async createOrder(body: CreateOrderDto, user: IUser) {
     const { deliveryType } = body;
 
@@ -127,6 +148,7 @@ export class OrderService {
       message: 'Cannot process order creation request',
     };
   }
+
   async fetchAllOrders(query: FetchAllOrdersDto, user: IUser) {
     const { search } = query;
     const condition = { user: user.id };
@@ -379,6 +401,13 @@ export class OrderService {
 
       const foundProductsInDb = await this.productRepo.find({
         _id: { $in: productIds },
+      });
+
+      foundProductsInDb.map((product) => {
+        if (!product.purchasable)
+          throw new ForbiddenException(
+            'You are attempting to purchase a product that cannot be purchased on the site. Kindly reach out tosupport to get this product',
+          );
       });
 
       const subTotal = foundProductsInDb.reduce((total, product) => {

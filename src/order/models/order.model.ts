@@ -15,7 +15,7 @@ import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { DeliveryType, OrderStatus, PAYMENT_TYPE } from 'src/common';
 import { OrderedProductsDocument } from './ordered-products.model';
 import { Collections } from 'src/collections';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { UserDocument } from 'src/user';
 import { OrderDeliveryFeesDocument } from './order-delivery-fees.model';
 
@@ -151,9 +151,10 @@ export class Order {
 
   @Prop({ type: Boolean, default: false })
   @IsBoolean()
+  @Type(() => String)
   @Transform(({ value }) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
     return false;
   })
   @IsNotEmpty()

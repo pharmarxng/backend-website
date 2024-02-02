@@ -30,7 +30,7 @@ export class AdminSeeder {
         password: adminPassword,
         firstName: adminFirstname,
         lastName: adminLastname,
-        roles: AdminRole.SUPER_ADMIN,
+        roles: [AdminRole.SUPER_ADMIN],
       });
 
       this.logger.log('Admin user seeded successfully.');

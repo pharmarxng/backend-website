@@ -35,6 +35,6 @@ import { MailingService } from 'src/mailing/mailing.service';
     WebhookService,
     MailingService,
   ],
-  exports: [OrderService],
+  exports: [OrderService, OrderRepository],
 })
 export class OrderModule {}

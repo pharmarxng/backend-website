@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { Collections } from 'src/collections';
-import { Category } from './category.model';
+import { CategoryDocument } from './category.model';
 import { Reviews } from './reviews.model';
 
 export type ProductDocument = HydratedDocument<Product>;
@@ -70,12 +70,13 @@ export class Product {
   @ApiProperty({
     type: mongoose.Schema.Types.ObjectId,
   })
-  category: Category;
+  category: CategoryDocument;
 
   @Prop([
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: Collections.reviews,
+      default: [],
     },
   ])
   @ApiProperty({ type: [String] })
@@ -86,6 +87,9 @@ export class Product {
 
   @Prop({ type: Boolean, required: true, default: true })
   inStock: boolean;
+
+  @Prop({ type: Boolean, required: true, default: true })
+  purchasable: boolean;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

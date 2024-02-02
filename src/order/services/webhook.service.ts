@@ -9,8 +9,11 @@ import {
   ChargeDataDto,
   ChargeEventDto,
   DeliveryType,
+  OrderStatus,
   PAYMENT_TYPE,
   TEMPLATE_KEY,
+  formatDate,
+  formatString,
 } from 'src/common';
 import { TransactionRepository } from 'src/payment';
 import { MailingService } from 'src/mailing/mailing.service';
@@ -83,6 +86,7 @@ export class WebhookService {
         `No order found with the orderId: ${orderId}`,
       );
     }
+    const createdAt = (order as any).createdAt;
 
     if (order.payment_reference === reference) {
       this.logger.debug(`Reference matched for order with id ${orderId}`);
@@ -118,12 +122,11 @@ export class WebhookService {
 
         if (status === 'success') {
           order.isPaid = true;
+          order.status = OrderStatus.PAID;
           order.paymentType =
             (authorization.channel as PAYMENT_TYPE) ||
             (channel as PAYMENT_TYPE);
           await order.save();
-          console.log('It got here');
-          console.log({ products: order.products });
 
           // Todo inform the order service that the order payment has been received
           await this.zeptoMailService.sendmail(
@@ -133,27 +136,40 @@ export class WebhookService {
               name: order.firstName,
             },
             {
-              firstName: order.firstName,
+              firstName: formatString(order.firstName),
               delivery:
                 order.deliveryType === DeliveryType.delivery ? true : false,
               address: order.address,
               orderId: order.orderId,
-              orderDate: new Date(),
+              orderDate: formatDate(createdAt, 'DD/MM/YYYY'),
               products: order.products.map((product) => ({
                 image: product.productId.image,
                 name: product.productId.name,
                 quantity: product.quantity,
-                price: product.productId.price,
+                price: product.productId.price.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }),
               })),
-              subTotal: order.subTotal,
-              shiping: order.deliveryFee ? order.deliveryFee.price : 0,
-              tax: 0,
-              total: order.total,
+              subTotal: order.subTotal.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }),
+              shipping: order.deliveryFee
+                ? order.deliveryFee.price.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : '0.00',
+              tax: '0.00',
+              total: order.total.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }),
               phone: this.phone,
               orderLink: `${this.baseUrl}/order-details/${order.id}`,
             },
           );
-          console.log('It got here tooo');
           // Todo reduce the amount of available products
         } else {
           order.isPaid = false;
@@ -163,7 +179,6 @@ export class WebhookService {
         await session.commitTransaction();
       } catch (err) {
         await session.abortTransaction();
-        console.log({ error: err });
         this.logger.error({ error: err });
 
         throw new InternalServerErrorException(

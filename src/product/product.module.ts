@@ -17,6 +17,11 @@ import { CategoryRepository } from './repository/category.repository';
     CategoryService,
     CategoryRepository,
   ],
-  exports: [ProductService, CategoryService, ProductRepository],
+  exports: [
+    ProductService,
+    CategoryService,
+    ProductRepository,
+    CategoryRepository,
+  ],
 })
 export class ProductModule {}

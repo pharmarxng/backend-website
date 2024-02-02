@@ -24,9 +24,9 @@ export class JwtAdminPassportStrategy extends PassportStrategy(
 
   async validate(payload: any) {
     this.logger.debug('fetching admin from DB');
-    const admin = await this.adminRepo.findOne({ _id: payload.userId });
+    const admin = await this.adminRepo.findOne({ _id: payload.adminId });
     if (!admin) throw new UnauthorizedException();
-    this.logger.debug(`Validated admin with id ${payload.userId}`);
+    this.logger.debug(`Validated admin with id ${payload.adminId}`);
     return admin || null;
   }
 }

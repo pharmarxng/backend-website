@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MinLength, IsEmail } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
-import { AdminRole } from 'src/common';
+import { AdminRole, AdminStatus } from 'src/common';
 import * as bcrypt from 'bcryptjs';
 
 export type AdminDocument = HydratedDocument<Admin>;
@@ -68,11 +68,18 @@ export class Admin {
 
   @Prop({
     type: [String],
-    default: AdminRole.MASTER_ADMIN,
+    default: [AdminRole.MASTER_ADMIN],
     required: true,
     enum: AdminRole,
   })
   roles: AdminRole[];
+
+  @Prop({
+    type: String,
+    default: AdminStatus.ACTIVE,
+    enum: AdminStatus,
+  })
+  status: AdminStatus;
 }
 
 export const AdminSchema = SchemaFactory.createForClass(Admin);
