@@ -18,6 +18,7 @@ export class AdminSeeder {
       const adminPassword = this.configService.get<string>('ADMIN_PASSWORD');
       const adminFirstname = this.configService.get<string>('AMIN_FIRSTNAME');
       const adminLastname = this.configService.get<string>('ADMIN_LASTNAME');
+      const adminEmail = this.configService.get<string>('ADMIN_EMAIL');
 
       const foundAdminInDb = await this.adminRepo.findOne({
         phone: adminPhone,
@@ -27,6 +28,7 @@ export class AdminSeeder {
 
       await this.adminRepo.create({
         phone: adminPhone,
+        email: adminEmail,
         password: adminPassword,
         firstName: adminFirstname,
         lastName: adminLastname,
