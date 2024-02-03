@@ -5,7 +5,7 @@
   "author": "",
   "private": true,
   "engines": {
-    "node": ">=16.18.1"
+    "node": ">=18.19.0"
   },
   "license": "UNLICENSED",
   "scripts": {
@@ -53,8 +53,10 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "string-width": "^7.1.0",
     "strip-ansi": "^7.1.0",
     "swagger-ui-express": "^4.6.2",
+    "wrap-ansi": "^9.0.0",
     "zeptomail": "^5.0.0"
   },
   "devDependencies": {
@@ -101,8 +103,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "resolutions": {
-    "strip-ansi": "6.0.0"
   }
 }
