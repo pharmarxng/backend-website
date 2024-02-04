@@ -21,7 +21,7 @@ export class AdminSeeder {
       const adminEmail = this.configService.get<string>('ADMIN_EMAIL');
 
       const foundAdminInDb = await this.adminRepo.findOne({
-        phone: adminPhone,
+        email: adminEmail,
       });
 
       if (foundAdminInDb) return;
