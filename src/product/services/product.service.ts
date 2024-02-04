@@ -67,6 +67,7 @@ export class ProductService {
       const foundProd = await this.productsRepo.findOne(
         {
           category: element._id,
+          purchasable: true,
         },
         null,
         { sort: { rating: -1 } },
@@ -82,10 +83,14 @@ export class ProductService {
   }
 
   async getTrendingProducts() {
-    const foundProducts = await this.productsRepo.find({}, null, {
-      sort: { rating: -1 },
-      limit: 8,
-    });
+    const foundProducts = await this.productsRepo.find(
+      { purchasable: true },
+      null,
+      {
+        sort: { rating: -1 },
+        limit: 8,
+      },
+    );
 
     return {
       statusCode: HttpStatus.OK,
