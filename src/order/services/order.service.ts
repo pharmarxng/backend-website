@@ -241,8 +241,11 @@ export class OrderService {
   async cancelOrder(id: string) {
     const foundOrderInDb = await this.orderRepo.findById(id);
     if (!foundOrderInDb) throw new NotFoundException('Order not found');
-    if (foundOrderInDb.status === OrderStatus.COMPLETED)
-      throw new ConflictException('Order has already been completed');
+    if (
+      foundOrderInDb.status === OrderStatus.COMPLETED ||
+      foundOrderInDb.status === OrderStatus.PAID
+    )
+      throw new ConflictException('Order has already been paid for');
     foundOrderInDb.status = OrderStatus.CANCELLED;
     const updatedOrderInDb = await foundOrderInDb.save();
     return {

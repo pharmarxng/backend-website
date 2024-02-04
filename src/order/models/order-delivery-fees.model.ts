@@ -37,6 +37,19 @@ export class OrderDeliveryFees {
     description: 'Price to deliver to this location',
   })
   price: number;
+
+  @Prop({
+    type: String,
+    required: true,
+    default:
+      'Prices are not fixed and can go up on down depending on the courier',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    type: String,
+  })
+  sideNote: string;
 }
 
 export const OrderDeliveryFeesSchema =
