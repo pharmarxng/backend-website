@@ -169,13 +169,14 @@ export class OrderService {
   }
 
   async fetchOrderById(id: string) {
-    const foundOrderInDb = await this.orderRepo.findById(
-      id,
-      {},
-      {
-        populate: ['products', 'deliveryFee', 'discountVoucher'],
-      },
-    );
+    const foundOrderInDb = await this.orderRepo.findOne({ _id: id }, null, {
+      populate: [
+        { path: 'discountVoucher' },
+        { path: 'deliveryFee' },
+        { path: 'products', populate: { path: 'productId' } },
+        { path: 'user' },
+      ],
+    });
     if (!foundOrderInDb) throw new NotFoundException(`Order ${id} not found`);
     return {
       statusCode: HttpStatus.OK,
@@ -239,8 +240,15 @@ export class OrderService {
   }
 
   async cancelOrder(id: string) {
-    const foundOrderInDb = await this.orderRepo.findById(id);
-    if (!foundOrderInDb) throw new NotFoundException('Order not found');
+    const foundOrderInDb = await this.orderRepo.findOne({ _id: id }, null, {
+      populate: [
+        { path: 'discountVoucher' },
+        { path: 'deliveryFee' },
+        { path: 'products', populate: { path: 'productId' } },
+        { path: 'user' },
+      ],
+    });
+    if (!foundOrderInDb) throw new NotFoundException(`Order not found`);
     if (
       foundOrderInDb.status === OrderStatus.COMPLETED ||
       foundOrderInDb.status === OrderStatus.PAID

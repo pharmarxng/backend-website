@@ -17,10 +17,10 @@ export class AdminTokenService {
     this.logger = new Logger(AdminTokenService.name);
   }
 
-  async generateToken(userId: string | number, ttl: string) {
+  async generateToken(adminId: string | number, ttl: string) {
     return await this.jwtService.signAsync(
       {
-        userId: userId,
+        adminId: adminId,
       },
       {
         expiresIn: ttl,
@@ -29,15 +29,15 @@ export class AdminTokenService {
   }
 
   async handleCreateTokens(
-    userId: string | number,
+    adminId: string | number,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       const accessToken = await this.generateToken(
-        userId,
+        adminId,
         this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_IN'),
       );
       const refreshToken = await this.generateToken(
-        userId,
+        adminId,
         this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_IN'),
       );
       return { accessToken, refreshToken };

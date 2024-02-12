@@ -280,8 +280,17 @@ export class AdminService {
 
     const foundOrdersInDb = await this.orderRepo.findManyWithPagination(
       condition,
-      query,
+      {
+        ...query,
+        populate: [
+          { path: 'discountVoucher' },
+          { path: 'deliveryFee' },
+          { path: 'products', populate: { path: 'productId' } },
+          { path: 'user' },
+        ],
+      },
     );
+
     return {
       statusCode: HttpStatus.OK,
       message: 'Successfully fetched orders',
@@ -307,13 +316,19 @@ export class AdminService {
 
   async confirmOrder({ id }: MongoIdDto, body: ConfirmOrder) {
     const { confirm } = body;
-    const updatedOrderInDb = await this.orderRepo.findOneAndUpDate(
-      { _id: id },
-      {
-        status:
-          confirm === true ? OrderStatus.COMPLETED : OrderStatus.CANCELLED,
-      },
-    );
+    const foundOrderInDb = await this.orderRepo.findOne({ _id: id }, null, {
+      populate: [
+        { path: 'discountVoucher' },
+        { path: 'deliveryFee' },
+        { path: 'products', populate: { path: 'productId' } },
+        { path: 'user' },
+      ],
+    });
+    if (!foundOrderInDb) throw new NotFoundException(`Order not found`);
+    foundOrderInDb.status =
+      confirm === true ? OrderStatus.COMPLETED : OrderStatus.CANCELLED;
+
+    const updatedOrderInDb = await foundOrderInDb.save();
 
     return {
       statusCode: HttpStatus.OK,
