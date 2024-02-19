@@ -142,7 +142,7 @@ export class AdminService {
 
   async deleteCategoryById({ id }: MongoIdDto) {
     const deletedCategoryInDb = await this.categoryRepo.findOneAndDelete({
-      id,
+      _id: id,
     });
     return {
       statusCode: HttpStatus.OK,
@@ -152,16 +152,16 @@ export class AdminService {
   }
 
   async createNewProduct(body: CreateProductDto) {
-    const { categoryId, noOfUnitsAvailable } = body;
+    const { categoryId } = body;
+
     const foundCategoryInDb = await this.categoryRepo.findOne({
-      id: categoryId,
+      _id: categoryId,
     });
     if (!foundCategoryInDb) throw new NotFoundException(`Category not found`);
 
     const newProduct = await this.productsRepo.create({
       ...body,
       category: foundCategoryInDb,
-      inStock: noOfUnitsAvailable > 0 ? true : false,
     });
 
     return {
@@ -227,7 +227,7 @@ export class AdminService {
       throw new NotFoundException(`Product with id: ${id} not found`);
 
     if (categoryId) {
-      foundCategoryInDb = await this.categoryRepo.findOne({ id: categoryId });
+      foundCategoryInDb = await this.categoryRepo.findOne({ _id: categoryId });
       if (!foundCategoryInDb)
         throw new NotFoundException(`Category with id: ${id} not found`);
       foundProductInDb.category = foundCategoryInDb;
@@ -255,7 +255,7 @@ export class AdminService {
 
   async deleteProductById({ id }: MongoIdDto) {
     const deletedProductFromDb = await this.productsRepo.findOneAndDelete({
-      id,
+      _id: id,
     });
     return {
       statusCode: HttpStatus.OK,
