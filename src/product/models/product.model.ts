@@ -90,6 +90,9 @@ export class Product {
 
   @Prop({ type: Boolean, required: true, default: true })
   purchasable: boolean;
+
+  @Prop({ type: Boolean, required: true, default: true })
+  isFlashSale: boolean;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

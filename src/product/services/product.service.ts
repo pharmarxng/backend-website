@@ -59,21 +59,23 @@ export class ProductService {
     };
   }
 
-  async getFlashProducts() {
-    const foundCategory = await this.categoryRepo.find();
-    const foundProductsInDb = [];
-    for (let index = 0; index < foundCategory.length; index++) {
-      const element = foundCategory[index];
-      const foundProd = await this.productsRepo.findOne(
-        {
-          category: element._id,
-          purchasable: true,
-        },
-        null,
-        { sort: { rating: -1 } },
-      );
-      foundProductsInDb.push(foundProd);
+  async getFlashProducts(query: FindManyDto) {
+    const { search } = query;
+    const condition = {
+      isFlashSale: true,
+    };
+
+    if (search) {
+      condition['$or'] = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
     }
+
+    const foundProductsInDb = await this.productsRepo.findManyWithPagination(
+      condition,
+      query,
+    );
 
     return {
       statusCode: HttpStatus.OK,

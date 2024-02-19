@@ -220,6 +220,8 @@ export class AdminService {
       price,
       rating,
       inStock,
+      isFlashSale,
+      purchasable,
     } = body;
     let foundCategoryInDb: CategoryDocument;
     const foundProductInDb = await this.productsRepo.findOne({ _id: id });
@@ -243,6 +245,12 @@ export class AdminService {
     foundProductInDb.price = price ? price : foundProductInDb.price;
     foundProductInDb.rating = rating ? rating : foundProductInDb.rating;
     foundProductInDb.inStock = inStock ? inStock : foundProductInDb.inStock;
+    foundProductInDb.purchasable = purchasable
+      ? purchasable
+      : foundProductInDb.purchasable;
+    foundProductInDb.isFlashSale = isFlashSale
+      ? isFlashSale
+      : foundProductInDb.isFlashSale;
 
     const updatedProductInDb = await foundProductInDb.save();
 

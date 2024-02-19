@@ -120,6 +120,16 @@ export class CreateProductDto {
     return false;
   })
   purchasable: boolean;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  @Type(() => String)
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return false;
+  })
+  isFlashSale: boolean;
 }
 
 export class EditProductDto {
@@ -171,6 +181,16 @@ export class EditProductDto {
     return false;
   })
   purchasable?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => String)
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return false;
+  })
+  isFlashSale?: boolean;
 }
 
 export class ConfirmOrder {

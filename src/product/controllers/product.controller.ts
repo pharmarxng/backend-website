@@ -30,8 +30,8 @@ export class ProductController {
 
   @Get('get-flash-products')
   @ApiOperation({ summary: `Get products by category` })
-  async getFlashProducts() {
-    return this.productService.getFlashProducts();
+  async getFlashProducts(@Query() query: FindManyDto) {
+    return this.productService.getFlashProducts(query);
   }
 
   @Get('get-trending-products')
