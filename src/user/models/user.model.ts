@@ -26,7 +26,7 @@ export type UserDocument = HydratedDocument<User>;
   },
 })
 export class User {
-  @Prop({ type: String, required: true, lowercase: true })
+  @Prop({ type: String, required: true })
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -36,7 +36,7 @@ export class User {
   })
   firstName: string;
 
-  @Prop({ type: String, required: true, lowercase: true })
+  @Prop({ type: String, required: true })
   @IsNotEmpty()
   @IsString()
   @ApiProperty({

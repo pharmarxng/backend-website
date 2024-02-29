@@ -20,7 +20,7 @@ export type AdminDocument = HydratedDocument<Admin>;
   },
 })
 export class Admin {
-  @Prop({ type: String, required: true, lowercase: true })
+  @Prop({ type: String, required: true })
   @IsNotEmpty()
   @IsString()
   @ApiProperty({

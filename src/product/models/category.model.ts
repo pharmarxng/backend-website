@@ -18,7 +18,7 @@ export type CategoryDocument = HydratedDocument<Category>;
   },
 })
 export class Category {
-  @Prop({ type: String, required: true, lowercase: true })
+  @Prop({ type: String, required: true })
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
