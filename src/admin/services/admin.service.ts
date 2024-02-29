@@ -244,13 +244,25 @@ export class AdminService {
       : foundProductInDb.noOfUnitsAvailable;
     foundProductInDb.price = price ? price : foundProductInDb.price;
     foundProductInDb.rating = rating ? rating : foundProductInDb.rating;
-    foundProductInDb.inStock = inStock ? inStock : foundProductInDb.inStock;
-    foundProductInDb.purchasable = purchasable
-      ? purchasable
-      : foundProductInDb.purchasable;
-    foundProductInDb.isFlashSale = isFlashSale
-      ? isFlashSale
-      : foundProductInDb.isFlashSale;
+
+    if (inStock === true) {
+      foundProductInDb.inStock = true;
+    } else if (inStock === false) {
+      foundProductInDb.inStock = false;
+      foundProductInDb.noOfUnitsAvailable = 0;
+    }
+
+    if (purchasable === true) {
+      foundProductInDb.purchasable = true;
+    } else if (purchasable === false) {
+      foundProductInDb.purchasable = false;
+    }
+
+    if (isFlashSale === true) {
+      foundProductInDb.isFlashSale = true;
+    } else if (isFlashSale === false) {
+      foundProductInDb.isFlashSale = false;
+    }
 
     const updatedProductInDb = await foundProductInDb.save();
 
